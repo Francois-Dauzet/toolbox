@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compteur Yams</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Hide number input arrows */
+      input[type='number']::-webkit-inner-spin-button,
+      input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type='number'] {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-900 text-slate-300">
+    <div id="app" class="relative container mx-auto p-4 md:p-8 max-w-7xl">
+      <!-- Bouton de retour à l'accueil -->
+      <a
+        href="../index.html"
+        title="Retour à l'accueil"
+        class="absolute top-4 left-4 md:top-8 md:left-8 text-slate-400 hover:text-indigo-400 transition-colors z-10"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5" />
+          <path d="m12 19-7-7 7-7" />
+        </svg>
+      </a>
+
+      <!-- Vue 1: Configuration des joueurs -->
+      <div id="player-setup-view">
+        <div
+          class="bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-8 rounded-xl shadow-lg max-w-md mx-auto"
+        >
+          <h1 class="text-3xl font-bold text-center text-slate-100 mb-2">
+            Partie de Yams
+          </h1>
+          <p class="text-center text-slate-400 mb-6">
+            Ajoutez les joueurs pour commencer.
+          </p>
+
+          <form id="add-player-form" class="flex gap-2 mb-4">
+            <input
+              type="text"
+              id="player-name-input"
+              placeholder="Nom du joueur"
+              class="flex-grow w-full px-4 py-2 bg-slate-700 border border-slate-600 text-slate-200 placeholder:text-slate-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
+              required
+            />
+            <button
+              type="submit"
+              class="bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-colors"
+            >
+              Ajouter
+            </button>
+          </form>
+
+          <div id="player-list-container" class="mb-6">
+            <h2 class="text-lg font-semibold mb-2 text-slate-300">Joueurs :</h2>
+            <ul id="player-list" class="space-y-2"></ul>
+          </div>
+
+          <button
+            id="start-game-btn"
+            class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-green-500 transition-colors disabled:bg-slate-600 disabled:cursor-not-allowed"
+          >
+            Démarrer la partie
+          </button>
+        </div>
+      </div>
+
+      <!-- Vue 2: Feuille de score -->
+      <div id="scoring-view" class="hidden">
+        <h1 class="text-4xl font-bold text-center text-slate-100 mb-8">
+          Feuille de score
+        </h1>
+        <div
+          class="overflow-x-auto bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl shadow-lg"
+        >
+          <table
+            id="score-sheet"
+            class="w-full text-sm text-left text-slate-400"
+          ></table>
+        </div>
+        <div class="mt-8 flex justify-center gap-4">
+          <button
+            id="finish-game-btn"
+            class="bg-red-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-red-500 transition-colors"
+          >
+            Terminer la partie
+          </button>
+          <button
+            id="reset-game-btn"
+            class="bg-slate-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500 transition-colors"
+          >
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+
+      <!-- Vue 3: Résultats -->
+      <div id="results-view" class="hidden">
+        <div
+          class="bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-8 rounded-xl shadow-lg max-w-lg mx-auto"
+        >
+          <h1 class="text-3xl font-bold text-center text-slate-100 mb-6">
+            Résultats de la partie
+          </h1>
+          <ol id="results-list" class="space-y-4"></ol>
+          <div class="mt-8 flex justify-center">
+            <button
+              id="new-game-btn"
+              class="bg-indigo-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 transition-colors"
+            >
+              Nouvelle partie
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal pour les actions restantes -->
+    <div
+      id="actions-modal"
+      class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center z-50"
+    >
+      <div
+        class="relative mx-auto p-5 border border-slate-700 w-full max-w-sm shadow-lg rounded-xl bg-slate-800"
+      >
+        <div class="mt-3 text-center">
+          <h3
+            id="modal-title"
+            class="text-lg leading-6 font-medium text-slate-100"
+          >
+            Actions restantes
+          </h3>
+          <div class="mt-4 px-4 py-3 max-h-60 overflow-y-auto">
+            <ul
+              id="modal-actions-list"
+              class="text-sm text-slate-300 list-disc list-inside text-left space-y-2"
+            ></ul>
+          </div>
+          <div class="items-center px-4 py-3">
+            <button
+              id="modal-close-btn"
+              class="px-4 py-2 bg-indigo-600 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-400"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const scoreCategories = [
+          { id: 'aces', name: 'As', section: 'upper' },
+          { id: 'twos', name: 'Deux', section: 'upper' },
+          { id: 'threes', name: 'Trois', section: 'upper' },
+          { id: 'fours', name: 'Quatre', section: 'upper' },
+          { id: 'fives', name: 'Cinq', section: 'upper' },
+          { id: 'sixes', name: 'Six', section: 'upper' },
+          {
+            id: 'bonus',
+            name: 'Bonus (> 62)',
+            section: 'upper',
+            isCalculated: true,
+          },
+          {
+            id: 'upperTotal',
+            name: 'Total Supérieur',
+            section: 'upper',
+            isCalculated: true,
+            isBold: true,
+          },
+          { id: 'threeOfAKind', name: 'Brelan', section: 'lower' },
+          { id: 'fourOfAKind', name: 'Carré', section: 'lower' },
+          { id: 'fullHouse', name: 'Full', section: 'lower' },
+          { id: 'smallStraight', name: 'Petite Suite', section: 'lower' },
+          { id: 'largeStraight', name: 'Grande Suite', section: 'lower' },
+          { id: 'yams', name: 'Yams', section: 'lower' },
+          { id: 'chance', name: 'Chance', section: 'lower' },
+          {
+            id: 'lowerTotal',
+            name: 'Total Inférieur',
+            section: 'lower',
+            isCalculated: true,
+            isBold: true,
+          },
+          {
+            id: 'grandTotal',
+            name: 'Total Général',
+            section: 'total',
+            isCalculated: true,
+            isBold: true,
+          },
+        ];
+
+        const views = {
+          playerSetup: document.getElementById('player-setup-view'),
+          scoring: document.getElementById('scoring-view'),
+          results: document.getElementById('results-view'),
+        };
+
+        const addPlayerForm = document.getElementById('add-player-form');
+        const playerNameInput = document.getElementById('player-name-input');
+        const playerList = document.getElementById('player-list');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const scoreSheet = document.getElementById('score-sheet');
+        const finishGameBtn = document.getElementById('finish-game-btn');
+        const resultsList = document.getElementById('results-list');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const resetGameBtn = document.getElementById('reset-game-btn');
+        const actionsModal = document.getElementById('actions-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalActionsList = document.getElementById('modal-actions-list');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        let gameState = { players: [], activeView: 'playerSetup' };
+
+        function saveState() {
+          sessionStorage.setItem('yamsGameState', JSON.stringify(gameState));
+        }
+
+        function loadState() {
+          const savedState = sessionStorage.getItem('yamsGameState');
+          if (savedState) gameState = JSON.parse(savedState);
+          renderUI();
+        }
+
+        function resetState() {
+          if (
+            confirm(
+              'Êtes-vous sûr de vouloir réinitialiser la partie ? Toutes les données seront perdues.'
+            )
+          ) {
+            sessionStorage.removeItem('yamsGameState');
+            gameState = { players: [], activeView: 'playerSetup' };
+            renderUI();
+          }
+        }
+
+        function renderUI() {
+          renderPlayerList();
+          updateStartButtonState();
+          if (gameState.activeView === 'scoring') {
+            generateScoreSheet();
+            gameState.players.forEach((_, index) => calculateTotals(index));
+          }
+          showView(gameState.activeView);
+        }
+
+        function showView(viewName) {
+          Object.values(views).forEach((view) => view.classList.add('hidden'));
+          if (views[viewName]) views[viewName].classList.remove('hidden');
+          gameState.activeView = viewName;
+          saveState();
+        }
+
+        function renderPlayerList() {
+          playerList.innerHTML = '';
+          if (gameState.players.length === 0) {
+            playerList.innerHTML =
+              '<li class="text-slate-500 italic">Aucun joueur ajouté.</li>';
+          } else {
+            gameState.players.forEach((player, index) => {
+              const li = document.createElement('li');
+              li.className =
+                'flex justify-between items-center bg-slate-700 p-2 rounded-lg';
+              li.textContent = player.name;
+              const removeBtn = document.createElement('button');
+              removeBtn.textContent = '✕';
+              removeBtn.className = 'text-red-400 hover:text-red-300 font-bold';
+              removeBtn.onclick = () => removePlayer(index);
+              li.appendChild(removeBtn);
+              playerList.appendChild(li);
+            });
+          }
+        }
+
+        function updateStartButtonState() {
+          startGameBtn.disabled = gameState.players.length < 1;
+        }
+
+        function generateScoreSheet() {
+          let tableHTML = `
+                    <thead class="text-xs text-slate-400 uppercase bg-slate-700/50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 rounded-tl-xl">Catégorie</th>
+                            ${gameState.players
+                              .map(
+                                (p, index) => `
+                                <th scope="col" class="px-6 py-3 text-center">
+                                    <div class="flex flex-col items-center justify-center gap-1">
+                                        <span class="text-slate-200">${p.name}</span>
+                                        <button data-player-index="${index}" class="actions-btn p-1 rounded-full hover:bg-indigo-500/20 transition-colors" title="Actions restantes">
+                                            <svg class="text-indigo-400" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16.5V9.5"/><path d="M12 21.5C17.2467 21.5 21.5 17.2467 21.5 12C21.5 6.75329 17.2467 2.5 12 2.5C6.75329 2.5 2.5 6.75329 2.5 12C2.5 17.2467 6.75329 21.5 12 21.5Z"/><path d="M12 6.5C12.2761 6.5 12.5 6.27614 12.5 6C12.5 5.72386 12.2761 5.5 12 5.5C11.7239 5.5 11.5 5.72386 11.5 6C11.5 6.27614 11.7239 6.5 12 6.5Z"/></svg>
+                                        </button>
+                                    </div>
+                                </th>
+                            `
+                              )
+                              .join('')}
+                        </tr>
+                    </thead>
+                    <tbody>`;
+          scoreCategories.forEach((cat) => {
+            const rowClass = cat.isBold
+              ? 'bg-slate-700 font-semibold'
+              : 'border-b border-slate-700';
+            tableHTML += `<tr class="${rowClass}">`;
+            tableHTML += `<th scope="row" class="px-6 py-4 font-medium text-slate-200 whitespace-nowrap">${cat.name}</th>`;
+            gameState.players.forEach((player, playerIndex) => {
+              if (cat.isCalculated) {
+                tableHTML += `<td id="${cat.id}-${playerIndex}" class="px-6 py-4 text-center font-bold">0</td>`;
+              } else {
+                const scoreValue =
+                  player.scores[cat.id] === null ? '' : player.scores[cat.id];
+                tableHTML += `
+                                <td class="px-2 py-1">
+                                    <input type="number" min="0" data-player="${playerIndex}" data-category="${cat.id}" 
+                                           value="${scoreValue}"
+                                           class="w-full h-10 border rounded-md text-center focus:ring-2 transition-colors">
+                                </td>`;
+              }
+            });
+            tableHTML += `</tr>`;
+          });
+          tableHTML += '</tbody>';
+          scoreSheet.innerHTML = tableHTML;
+          attachSheetListeners();
+        }
+
+        function displayResults() {
+          const finalScores = gameState.players.map((player, index) => {
+            const grandTotal = parseInt(
+              document.getElementById(`grandTotal-${index}`).textContent
+            );
+            return { name: player.name, total: grandTotal };
+          });
+          finalScores.sort((a, b) => b.total - a.total);
+          resultsList.innerHTML = '';
+          finalScores.forEach((player, index) => {
+            const rank = index + 1;
+            let medal = '';
+            if (rank === 1) medal = '🥇';
+            if (rank === 2) medal = '🥈';
+            if (rank === 3) medal = '🥉';
+            const li = document.createElement('li');
+            li.className = `flex items-center justify-between p-4 rounded-lg ${
+              rank === 1
+                ? 'bg-amber-500/10 border-2 border-amber-500/50'
+                : 'bg-slate-700'
+            }`;
+            li.innerHTML = `
+                        <div class="flex items-center"><span class="text-2xl font-bold w-12">${rank}. ${medal}</span><span class="text-xl font-medium text-slate-200">${player.name}</span></div>
+                        <span class="text-2xl font-bold text-indigo-400">${player.total} pts</span>`;
+            resultsList.appendChild(li);
+          });
+          showView('results');
+        }
+
+        function addPlayer(name) {
+          const newPlayer = {
+            name,
+            scores: scoreCategories.reduce((acc, cat) => {
+              if (!cat.isCalculated) acc[cat.id] = null;
+              return acc;
+            }, {}),
+          };
+          gameState.players.push(newPlayer);
+          renderPlayerList();
+          updateStartButtonState();
+          saveState();
+        }
+
+        function removePlayer(index) {
+          gameState.players.splice(index, 1);
+          renderPlayerList();
+          updateStartButtonState();
+          saveState();
+        }
+
+        function calculateTotals(playerIndex) {
+          const playerScores = gameState.players[playerIndex].scores;
+          let upperScore = 0,
+            lowerScore = 0;
+          scoreCategories.forEach((cat) => {
+            if (cat.section === 'upper' && !cat.isCalculated)
+              upperScore += playerScores[cat.id] || 0;
+            if (cat.section === 'lower' && !cat.isCalculated)
+              lowerScore += playerScores[cat.id] || 0;
+          });
+          const bonus = upperScore >= 63 ? 35 : 0;
+          const upperTotal = upperScore + bonus;
+          const grandTotal = upperTotal + lowerScore;
+          document.getElementById(`bonus-${playerIndex}`).textContent = bonus;
+          document.getElementById(`upperTotal-${playerIndex}`).textContent =
+            upperTotal;
+          document.getElementById(`lowerTotal-${playerIndex}`).textContent =
+            lowerScore;
+          document.getElementById(`grandTotal-${playerIndex}`).textContent =
+            grandTotal;
+        }
+
+        function updateInputStyle(input) {
+          const defaultClasses = [
+            'bg-slate-700',
+            'border-slate-600',
+            'focus:ring-indigo-500',
+            'text-slate-300',
+          ];
+          const validClasses = [
+            'bg-green-500/10',
+            'border-green-500/50',
+            'text-green-300',
+            'focus:ring-green-500',
+          ];
+          const zeroClasses = [
+            'bg-red-500/10',
+            'border-red-500/50',
+            'text-red-300',
+            'focus:ring-red-500',
+          ];
+
+          input.classList.remove(
+            ...defaultClasses,
+            ...validClasses,
+            ...zeroClasses
+          );
+          const value = input.value;
+          if (value !== '') {
+            const score = parseInt(value, 10);
+            if (score > 0) input.classList.add(...validClasses);
+            else if (score === 0) input.classList.add(...zeroClasses);
+            else input.classList.add(...defaultClasses);
+          } else {
+            input.classList.add(...defaultClasses);
+          }
+        }
+
+        function attachSheetListeners() {
+          scoreSheet
+            .querySelectorAll('input[type="number"]')
+            .forEach((input) => {
+              updateInputStyle(input);
+              input.addEventListener('input', (e) => {
+                const playerIndex = parseInt(e.target.dataset.player);
+                const category = e.target.dataset.category;
+                const value =
+                  e.target.value === '' ? null : parseInt(e.target.value);
+                gameState.players[playerIndex].scores[category] = value;
+                calculateTotals(playerIndex);
+                updateInputStyle(e.target);
+                saveState();
+              });
+            });
+          scoreSheet.querySelectorAll('.actions-btn').forEach((button) => {
+            button.addEventListener('click', (e) => {
+              const playerIndex = parseInt(e.currentTarget.dataset.playerIndex);
+              openRemainingActionsModal(playerIndex);
+            });
+          });
+        }
+
+        function openRemainingActionsModal(playerIndex) {
+          const player = gameState.players[playerIndex];
+          modalTitle.textContent = `Actions restantes pour ${player.name}`;
+          const remainingActions = scoreCategories.filter(
+            (cat) => !cat.isCalculated && player.scores[cat.id] === null
+          );
+          modalActionsList.innerHTML = '';
+          if (remainingActions.length > 0) {
+            remainingActions.forEach((action) => {
+              const li = document.createElement('li');
+              li.textContent = action.name;
+              modalActionsList.appendChild(li);
+            });
+          } else {
+            modalActionsList.innerHTML =
+              '<li class="list-none italic">Toutes les actions ont été effectuées.</li>';
+          }
+          actionsModal.classList.remove('hidden');
+        }
+
+        function closeActionsModal() {
+          actionsModal.classList.add('hidden');
+        }
+
+        addPlayerForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const playerName = playerNameInput.value.trim();
+          if (playerName) {
+            addPlayer(playerName);
+            playerNameInput.value = '';
+            playerNameInput.focus();
+          }
+        });
+
+        startGameBtn.addEventListener('click', () => {
+          if (gameState.players.length > 0) {
+            showView('scoring');
+            generateScoreSheet();
+            gameState.players.forEach((_, index) => calculateTotals(index));
+          }
+        });
+
+        finishGameBtn.addEventListener('click', displayResults);
+        newGameBtn.addEventListener('click', () => {
+          sessionStorage.removeItem('yamsGameState');
+          gameState = { players: [], activeView: 'playerSetup' };
+          renderUI();
+        });
+        resetGameBtn.addEventListener('click', resetState);
+        modalCloseBtn.addEventListener('click', closeActionsModal);
+        actionsModal.addEventListener('click', (e) => {
+          if (e.target === actionsModal) {
+            closeActionsModal();
+          }
+        });
+
+        loadState();
+      });
+    </script>
+  </body>
+</html>

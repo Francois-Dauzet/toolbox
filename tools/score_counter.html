@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Compteur de Points</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Police personnalisée et animations */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Roboto+Mono:wght@700&display=swap');
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      .font-mono {
+        font-family: 'Roboto Mono', monospace;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-in-out;
+      }
+      .animate-fade-in-fast {
+        animation: fadeIn 0.2s ease-in-out;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      .animate-score-up {
+        animation: scoreUp 0.5s ease-out;
+      }
+      @keyframes scoreUp {
+        0% {
+          transform: translateY(0) scale(1);
+          color: #22d3ee;
+        }
+        50% {
+          transform: translateY(-15px) scale(1.2);
+          color: #67e8f9;
+        }
+        100% {
+          transform: translateY(0) scale(1);
+          color: #22d3ee;
+        }
+      }
+      .animate-score-down {
+        animation: scoreDown 0.5s ease-out;
+      }
+      @keyframes scoreDown {
+        0% {
+          transform: translateY(0) scale(1);
+          color: #22d3ee;
+        }
+        50% {
+          transform: translateY(15px) scale(0.8);
+          color: #f87171;
+        }
+        100% {
+          transform: translateY(0) scale(1);
+          color: #22d3ee;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-800">
+    <!-- ===== Page de Configuration ===== -->
+    <div
+      id="setup-page"
+      class="min-h-screen text-white flex flex-col items-center justify-center p-4 animate-fade-in"
+    >
+      <!-- Bouton Retour à l'accueil -->
+      <a
+        href="/"
+        class="absolute top-6 left-6 text-gray-500 hover:text-white transition-colors"
+        title="Retour à l'accueil"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-7 w-7"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M11 17l-5-5m0 0l5-5m-5 5h12"
+          />
+        </svg>
+      </a>
+      <div class="w-full max-w-md bg-gray-700 rounded-xl shadow-2xl p-8">
+        <h1 class="text-3xl font-bold mb-2 text-cyan-400 text-center">
+          Compteur de Points
+        </h1>
+
+        <div class="my-8">
+          <label class="block text-lg font-medium mb-4 text-center"
+            >Nombre de joueurs</label
+          >
+          <div class="flex items-center justify-center space-x-6">
+            <button
+              id="decrement-players"
+              class="bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-full w-12 h-12 flex items-center justify-center text-3xl transition-colors"
+            >
+              -
+            </button>
+            <span
+              id="player-count"
+              class="text-5xl font-mono font-bold w-20 text-center"
+              >2</span
+            >
+            <button
+              id="increment-players"
+              class="bg-gray-600 hover:bg-gray-500 text-white font-bold rounded-full w-12 h-12 flex items-center justify-center text-3xl transition-colors"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        <div id="player-names-container" class="space-y-3 mb-8">
+          <!-- Les champs de saisie pour les noms seront insérés ici par JS -->
+        </div>
+
+        <button
+          id="start-button"
+          class="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-4 rounded-lg text-xl transition-all duration-300 shadow-lg transform hover:scale-105"
+        >
+          Démarrer la partie
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== Page du Compteur ===== -->
+    <div
+      id="counter-page"
+      class="min-h-screen bg-gray-800 text-white p-4 sm:p-6 lg:p-8 animate-fade-in hidden"
+    >
+      <header class="flex items-center justify-between mb-8">
+        <button
+          id="back-button"
+          class="text-cyan-400 hover:text-cyan-300 transition-colors p-2 rounded-full hover:bg-gray-700"
+          aria-label="Retour à l'accueil"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M11 17l-5-5m0 0l5-5m-5 5h12"
+            />
+          </svg>
+        </button>
+        <h1 class="text-2xl font-bold">Tableau des scores</h1>
+        <button
+          id="reset-button"
+          class="flex items-center text-cyan-400 hover:text-cyan-300 transition-colors p-2 rounded-lg hover:bg-gray-700"
+          aria-label="Réinitialiser les scores"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-5 w-5"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.899 2.139l.266.265a1 1 0 01-1.414 1.414l-.266-.265A5 5 0 105 9.95V13a1 1 0 11-2 0V3a1 1 0 011-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span class="ml-2 hidden sm:inline">Réinitialiser</span>
+        </button>
+      </header>
+      <main
+        id="players-grid"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
+        <!-- Les cartes des joueurs seront insérées ici par JS -->
+      </main>
+    </div>
+
+    <!-- ===== Modal de Confirmation ===== -->
+    <div
+      id="modal"
+      class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fade-in-fast hidden"
+    >
+      <div
+        class="bg-gray-700 rounded-xl shadow-2xl p-8 m-4 max-w-sm w-full text-center"
+      >
+        <p id="modal-message" class="text-white text-lg mb-6"></p>
+        <div class="flex justify-center space-x-4">
+          <button
+            id="modal-cancel"
+            class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+          >
+            Annuler
+          </button>
+          <button
+            id="modal-confirm"
+            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+          >
+            Confirmer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Template pour la carte joueur (caché) ===== -->
+    <template id="player-card-template">
+      <div
+        class="player-card bg-gray-700 rounded-xl shadow-lg p-6 flex flex-col items-center justify-between transform hover:scale-105 transition-transform duration-300 min-h-[250px]"
+      >
+        <input
+          type="text"
+          class="player-name text-3xl font-bold text-white mb-4 bg-transparent text-center w-full focus:outline-none focus:bg-gray-600 rounded-md p-1"
+          aria-label="Nom du joueur"
+        />
+        <p class="player-score text-7xl font-mono font-bold text-cyan-400 my-4">
+          0
+        </p>
+        <div class="flex space-x-4">
+          <button
+            class="decrement-score bg-red-500 hover:bg-red-600 text-white font-bold rounded-full w-14 h-14 flex items-center justify-center text-4xl transition-all duration-200 shadow-md active:scale-90"
+            aria-label="Décrémenter le score"
+          >
+            -
+          </button>
+          <button
+            class="increment-score bg-green-500 hover:bg-green-600 text-white font-bold rounded-full w-14 h-14 flex items-center justify-center text-4xl transition-all duration-200 shadow-md active:scale-90"
+            aria-label="Incrémenter le score"
+          >
+            +
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // --- State ---
+        let players = [];
+        let modalConfirmCallback = null;
+
+        // --- DOM Elements ---
+        const setupPage = document.getElementById('setup-page');
+        const counterPage = document.getElementById('counter-page');
+        const playerCountSpan = document.getElementById('player-count');
+        const decrementPlayersBtn =
+          document.getElementById('decrement-players');
+        const incrementPlayersBtn =
+          document.getElementById('increment-players');
+        const playerNamesContainer = document.getElementById(
+          'player-names-container'
+        );
+        const startButton = document.getElementById('start-button');
+        const playersGrid = document.getElementById('players-grid');
+        const backButton = document.getElementById('back-button');
+        const resetButton = document.getElementById('reset-button');
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCancelBtn = document.getElementById('modal-cancel');
+        const modalConfirmBtn = document.getElementById('modal-confirm');
+        const playerCardTemplate = document.getElementById(
+          'player-card-template'
+        );
+
+        // --- Functions ---
+        const saveState = () => {
+          sessionStorage.setItem(
+            'scoreCounterState',
+            JSON.stringify({ players })
+          );
+        };
+
+        const loadState = () => {
+          try {
+            const savedState = sessionStorage.getItem('scoreCounterState');
+            if (savedState) {
+              const { players: savedPlayers } = JSON.parse(savedState);
+              if (savedPlayers && savedPlayers.length > 0) {
+                players = savedPlayers;
+                renderPlayerCards();
+                showPage('counter');
+              }
+            }
+          } catch (error) {
+            console.error(
+              'Erreur lors de la lecture du sessionStorage:',
+              error
+            );
+            sessionStorage.removeItem('scoreCounterState');
+          }
+        };
+
+        const showPage = (pageName) => {
+          setupPage.classList.toggle('hidden', pageName !== 'setup');
+          counterPage.classList.toggle('hidden', pageName !== 'counter');
+        };
+
+        const updatePlayerCount = (newCount) => {
+          playerCountSpan.textContent = newCount;
+          playerNamesContainer.innerHTML = '';
+          for (let i = 0; i < newCount; i++) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = `Nom du Joueur ${i + 1}`;
+            input.className =
+              'player-name-input w-full bg-gray-800 text-white p-3 rounded-lg border-2 border-gray-600 focus:border-cyan-500 focus:outline-none transition-colors';
+            playerNamesContainer.appendChild(input);
+          }
+        };
+
+        const renderPlayerCards = () => {
+          playersGrid.innerHTML = '';
+          players.forEach((player) => {
+            const cardClone = playerCardTemplate.content.cloneNode(true);
+            const cardElement = cardClone.querySelector('.player-card');
+            const nameInput = cardClone.querySelector('.player-name');
+            const scoreDisplay = cardClone.querySelector('.player-score');
+            const decrementBtn = cardClone.querySelector('.decrement-score');
+            const incrementBtn = cardClone.querySelector('.increment-score');
+
+            cardElement.dataset.id = player.id;
+            nameInput.value = player.name;
+            scoreDisplay.textContent = player.score;
+
+            nameInput.addEventListener('change', (e) => {
+              player.name = e.target.value;
+              saveState();
+            });
+
+            decrementBtn.addEventListener('click', () =>
+              updateScore(player.id, -1)
+            );
+            incrementBtn.addEventListener('click', () =>
+              updateScore(player.id, 1)
+            );
+
+            playersGrid.appendChild(cardClone);
+          });
+        };
+
+        const updateScore = (id, delta) => {
+          const player = players.find((p) => p.id === id);
+          if (player) {
+            player.score += delta;
+            const cardElement = playersGrid.querySelector(
+              `.player-card[data-id='${id}']`
+            );
+            const scoreDisplay = cardElement.querySelector('.player-score');
+            scoreDisplay.textContent = player.score;
+            scoreDisplay.className =
+              'player-score text-7xl font-mono font-bold text-cyan-400 my-4'; // Reset class
+            void scoreDisplay.offsetWidth; // Trigger reflow
+            scoreDisplay.classList.add(
+              delta > 0 ? 'animate-score-up' : 'animate-score-down'
+            );
+            saveState();
+          }
+        };
+
+        const openModal = (message, onConfirm) => {
+          modalMessage.textContent = message;
+          modalConfirmCallback = onConfirm;
+          modal.classList.remove('hidden');
+        };
+
+        const closeModal = () => {
+          modal.classList.add('hidden');
+          modalConfirmCallback = null;
+        };
+
+        // --- Event Listeners ---
+        decrementPlayersBtn.addEventListener('click', () => {
+          let count = parseInt(playerCountSpan.textContent);
+          if (count > 1) {
+            updatePlayerCount(count - 1);
+          }
+        });
+
+        incrementPlayersBtn.addEventListener('click', () => {
+          let count = parseInt(playerCountSpan.textContent);
+          updatePlayerCount(count + 1);
+        });
+
+        startButton.addEventListener('click', () => {
+          const nameInputs =
+            playerNamesContainer.querySelectorAll('.player-name-input');
+          players = Array.from(nameInputs).map((input, i) => ({
+            id: i + 1,
+            name: input.value.trim() || `Joueur ${i + 1}`,
+            score: 0,
+          }));
+          saveState();
+          renderPlayerCards();
+          showPage('counter');
+        });
+
+        backButton.addEventListener('click', () => {
+          openModal(
+            'Voulez-vous vraiment quitter et perdre la progression ?',
+            () => {
+              sessionStorage.removeItem('scoreCounterState');
+              players = [];
+              updatePlayerCount(2); // Reset setup page
+              showPage('setup');
+              closeModal();
+            }
+          );
+        });
+
+        resetButton.addEventListener('click', () => {
+          openModal('Réinitialiser tous les scores à zéro ?', () => {
+            players.forEach((p) => (p.score = 0));
+            saveState();
+            renderPlayerCards();
+            closeModal();
+          });
+        });
+
+        modalCancelBtn.addEventListener('click', closeModal);
+        modalConfirmBtn.addEventListener('click', () => {
+          if (modalConfirmCallback) {
+            modalConfirmCallback();
+          }
+        });
+
+        // --- Initialisation ---
+        loadState();
+        if (players.length === 0) {
+          updatePlayerCount(2); // Initial setup
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sablier</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .time-display,
+      .custom-time-input {
+        font-family: 'Roboto Mono', monospace;
+      }
+      .hourglass {
+        position: relative;
+        width: 120px;
+        height: 200px;
+        margin: 0 auto;
+      }
+      .hourglass-glass {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        clip-path: polygon(
+          0 0,
+          100% 0,
+          100% 45%,
+          55% 50%,
+          100% 55%,
+          100% 100%,
+          0 100%,
+          0 55%,
+          45% 50%,
+          0 45%
+        );
+        background-color: rgba(71, 85, 105, 0.3); /* slate-700 with opacity */
+      }
+      .sand {
+        position: absolute;
+        left: 5px;
+        width: calc(100% - 10px);
+        background: linear-gradient(
+          to top,
+          #a78bfa,
+          #c4b5fd
+        ); /* violet-400, violet-300 */
+        transition: height 0.5s linear;
+      }
+      .sand-top {
+        top: 5px;
+        height: calc(45% - 5px);
+        clip-path: polygon(
+          0 0,
+          100% 0,
+          100% 100%,
+          50% calc(100% + 5px),
+          0 100%
+        );
+      }
+      .sand-bottom {
+        bottom: 5px;
+        height: 0;
+        clip-path: polygon(50% -5px, 100% 0, 100% 100%, 0 100%, 0 0);
+      }
+      /* Hide number input arrows */
+      input[type='number']::-webkit-inner-spin-button,
+      input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type='number'] {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-900 text-slate-300 flex items-center justify-center min-h-screen"
+  >
+    <div
+      id="app"
+      class="relative container mx-auto p-4 md:p-8 max-w-2xl w-full"
+    >
+      <a
+        href="../index.html"
+        title="Retour à l'accueil"
+        class="absolute top-4 left-4 md:top-8 md:left-8 text-slate-400 hover:text-indigo-400 transition-colors z-10"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5" />
+          <path d="m12 19-7-7 7-7" />
+        </svg>
+      </a>
+
+      <div
+        class="bg-slate-800/50 backdrop-blur-sm border border-slate-700 p-8 rounded-2xl shadow-2xl shadow-indigo-500/10 text-center"
+      >
+        <!-- Vue de configuration -->
+        <div id="setup-view">
+          <h1 class="text-3xl font-bold text-slate-100 mb-4">
+            Configurer le sablier
+          </h1>
+          <p class="text-slate-400 mb-10">Entrez la durée souhaitée.</p>
+
+          <div class="flex justify-center items-center gap-4 mb-10">
+            <div class="flex flex-col items-center gap-2">
+              <input
+                type="number"
+                id="minutes-input"
+                min="0"
+                max="99"
+                placeholder="00"
+                class="custom-time-input w-28 h-24 text-center text-6xl bg-slate-700/50 border border-slate-600 rounded-lg p-2 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+              <label
+                for="minutes-input"
+                class="text-xs text-slate-400 uppercase tracking-wider"
+                >Minutes</label
+              >
+            </div>
+            <span class="text-6xl text-slate-500 -mt-8">:</span>
+            <div class="flex flex-col items-center gap-2">
+              <input
+                type="number"
+                id="seconds-input"
+                min="0"
+                max="59"
+                placeholder="00"
+                class="custom-time-input w-28 h-24 text-center text-6xl bg-slate-700/50 border border-slate-600 rounded-lg p-2 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              />
+              <label
+                for="seconds-input"
+                class="text-xs text-slate-400 uppercase tracking-wider"
+                >Secondes</label
+              >
+            </div>
+          </div>
+
+          <button
+            id="start-setup-btn"
+            class="w-full py-3 px-6 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Démarrer
+          </button>
+        </div>
+
+        <!-- Vue du minuteur -->
+        <div id="timer-view" class="hidden">
+          <div class="hourglass mb-6">
+            <div class="hourglass-glass"></div>
+            <div id="sand-top" class="sand sand-top"></div>
+            <div id="sand-bottom" class="sand sand-bottom"></div>
+          </div>
+          <div
+            id="time-display"
+            class="time-display text-6xl md:text-7xl font-bold text-slate-100 tracking-wider mb-8"
+          >
+            00:00
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <button
+              id="reset-btn"
+              class="py-3 px-6 bg-slate-600 text-white font-semibold rounded-lg hover:bg-slate-700 transition-colors"
+            >
+              Réinitialiser
+            </button>
+            <button
+              id="pause-resume-btn"
+              class="py-3 px-6 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Pause
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const setupView = document.getElementById('setup-view');
+        const timerView = document.getElementById('timer-view');
+        const minutesInput = document.getElementById('minutes-input');
+        const secondsInput = document.getElementById('seconds-input');
+        const startSetupBtn = document.getElementById('start-setup-btn');
+        const timeDisplay = document.getElementById('time-display');
+        const pauseResumeBtn = document.getElementById('pause-resume-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const sandTop = document.getElementById('sand-top');
+        const sandBottom = document.getElementById('sand-bottom');
+
+        let state = {
+          totalDuration: 0,
+          remainingTime: 0,
+          isRunning: false,
+          intervalId: null,
+          endTime: 0,
+        };
+
+        const synth = new Tone.Synth().toDestination();
+
+        function saveState() {
+          sessionStorage.setItem('timerState', JSON.stringify(state));
+        }
+
+        function loadState() {
+          const savedState = sessionStorage.getItem('timerState');
+          if (savedState) {
+            state = JSON.parse(savedState);
+            if (state.totalDuration > 0) {
+              if (state.isRunning) {
+                state.remainingTime = state.endTime - Date.now();
+                if (state.remainingTime < 0) state.remainingTime = 0;
+                startTimer(false);
+              }
+              updateDisplay();
+              updateAnimation();
+              showView('timer');
+            }
+          }
+          checkStartButton();
+        }
+
+        function showView(viewName) {
+          setupView.classList.add('hidden');
+          timerView.classList.add('hidden');
+          if (viewName === 'setup') {
+            setupView.classList.remove('hidden');
+          } else {
+            timerView.classList.remove('hidden');
+          }
+        }
+
+        function formatTime(ms) {
+          const totalSeconds = Math.ceil(ms / 1000);
+          const minutes = String(Math.floor(totalSeconds / 60)).padStart(
+            2,
+            '0'
+          );
+          const seconds = String(totalSeconds % 60).padStart(2, '0');
+          return `${minutes}:${seconds}`;
+        }
+
+        function updateDisplay() {
+          timeDisplay.textContent = formatTime(state.remainingTime);
+        }
+
+        function updateAnimation() {
+          const progress = state.remainingTime / state.totalDuration;
+          const sandHeightPercentage = 45; // Corresponds to the clip-path
+          sandTop.style.height = `${progress * sandHeightPercentage}%`;
+          sandBottom.style.height = `${(1 - progress) * sandHeightPercentage}%`;
+        }
+
+        function tick() {
+          state.remainingTime = state.endTime - Date.now();
+          if (state.remainingTime <= 0) {
+            state.remainingTime = 0;
+            clearInterval(state.intervalId);
+            state.isRunning = false;
+            synth.triggerAttackRelease('C5', '0.5');
+            pauseResumeBtn.textContent = 'Relancer';
+            pauseResumeBtn.disabled = false;
+          }
+          updateDisplay();
+          updateAnimation();
+          saveState();
+        }
+
+        function startTimer(isNew) {
+          if (isNew) {
+            state.endTime = Date.now() + state.remainingTime;
+          }
+          clearInterval(state.intervalId);
+          state.intervalId = setInterval(tick, 100);
+          state.isRunning = true;
+          pauseResumeBtn.textContent = 'Pause';
+          pauseResumeBtn.disabled = false;
+          showView('timer');
+          saveState();
+        }
+
+        function pauseTimer() {
+          clearInterval(state.intervalId);
+          state.isRunning = false;
+          pauseResumeBtn.textContent = 'Reprendre';
+          saveState();
+        }
+
+        function checkStartButton() {
+          const minutes = parseInt(minutesInput.value) || 0;
+          const seconds = parseInt(secondsInput.value) || 0;
+          startSetupBtn.disabled = minutes * 60 + seconds <= 0;
+        }
+
+        minutesInput.addEventListener('input', checkStartButton);
+        secondsInput.addEventListener('input', checkStartButton);
+
+        startSetupBtn.addEventListener('click', () => {
+          const minutes = parseInt(minutesInput.value) || 0;
+          const seconds = parseInt(secondsInput.value) || 0;
+          state.totalDuration = (minutes * 60 + seconds) * 1000;
+          if (state.totalDuration > 0) {
+            state.remainingTime = state.totalDuration;
+            updateDisplay();
+            updateAnimation();
+            startTimer(true);
+          }
+        });
+
+        pauseResumeBtn.addEventListener('click', () => {
+          if (pauseResumeBtn.textContent === 'Relancer') {
+            state.remainingTime = state.totalDuration;
+            updateDisplay();
+            updateAnimation();
+            startTimer(true);
+          } else if (state.isRunning) {
+            pauseTimer();
+          } else {
+            startTimer(true);
+          }
+        });
+
+        resetBtn.addEventListener('click', () => {
+          clearInterval(state.intervalId);
+          state = {
+            totalDuration: 0,
+            remainingTime: 0,
+            isRunning: false,
+            intervalId: null,
+            endTime: 0,
+          };
+          sessionStorage.removeItem('timerState');
+          minutesInput.value = '';
+          secondsInput.value = '';
+          checkStartButton();
+          showView('setup');
+        });
+
+        loadState();
+      });
+    </script>
+  </body>
+</html>
