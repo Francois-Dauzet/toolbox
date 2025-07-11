@@ -461,7 +461,6 @@
           'effleurer',
           "murmurer à l'oreille de",
           'mordiller',
-          'dessiner sur',
           'suçer délicatement',
           'griffer doucement',
           'pincer délicatement',
@@ -476,6 +475,8 @@
           'chatouiller avec ton nez sur',
           'laisser un suçon sur',
           'attraper délicatement avec les dents',
+          'frôler avec les lèvres',
+          'aspirer doucement',
         ],
         bodyParts: [
           'la nuque',
@@ -485,7 +486,7 @@
           'la cuisse',
           'les lèvres',
           "le lobe de l'oreille",
-          'le creux du genou',
+          "l'arrière du genou",
           'le visage',
           'les fesses',
           "l'anus",
@@ -521,6 +522,9 @@
           "l'avant-bras",
           'le talon',
           'la colonne vertébrale',
+          "l'espace entre les doigts",
+          "l'espace entre les orteils",
+          'le périnée',
         ],
         soloActions: [
           'fais un compliment sincère et coquin à {target}.',
@@ -540,6 +544,9 @@
           'donne un nouveau surnom érotique à {target} pour le reste de la soirée.',
           'laisse {target} te donner un gage simple de son choix.',
           'fais un geste tendre et coquin envers {target}.',
+          'laisse {target} te bander les yeux pour les deux prochains tours.',
+          'laisse {target} choisir le prochain vêtement que tu dois enlever.',
+          'demande à {target} de te donner un ordre simple et coquin, et exécute-le.',
         ],
         truthQuestions: [
           'Quelle est la chose la plus folle que tu aimerais faire avec {target} ?',
@@ -721,7 +728,7 @@
           case 'food':
             text = `${actor}, dépose un(e) ${getRandomItem(
               foods
-            )} sur le/la ${getRandomItem(
+            )} sur ${getRandomItem(
               challengesDB.bodyParts
             )} de ${target} et mange-le/la.`;
             break;
@@ -741,7 +748,7 @@
             time = Math.floor(Math.random() * (60 - 5 + 1) + 5);
             text = `${actor}, tu dois ${getRandomItem(
               challengesDB.actions
-            )} le/la ${getRandomItem(
+            )} ${getRandomItem(
               challengesDB.bodyParts
             )} de ${target} pendant ${time} secondes.`;
             break;
