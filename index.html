@@ -57,7 +57,7 @@
             Boîte à Outils
           </h1>
           <p class="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
-            Une collection d'utilitaires pour simplifier votre quotidien.
+            Une collection d'utilitaires pour simplifier le quotidien
           </p>
         </header>
 
@@ -104,9 +104,15 @@
             Aucun outil ne correspond à votre recherche.
           </p>
         </main>
-
         <footer class="text-center mt-20 py-6 border-t border-slate-800">
-          <p class="text-slate-500 text-sm">Créé avec passion.</p>
+          <p class="text-slate-500 text-sm">
+            Créé avec passion par
+            <a
+              href="https://francois-d.com"
+              class="font-bold text-slate-400 hover:text-indigo-400 transition-colors"
+              >François Dauzet</a
+            >
+          </p>
         </footer>
       </div>
     </div>
@@ -158,6 +164,14 @@
             icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v2.24l2.24 2.24-1.28 1.28-2.24-2.24L4 4zm16 16v-2.24l-2.24-2.24 1.28-1.28 2.24 2.24L20 20zM8.72 15.28l-1.28-1.28L2.24 20h2.24l4.24-4.72zM15.28 8.72l1.28 1.28L21.76 4h-2.24l-4.24 4.72z"/><path d="m14 7 3 3m-5 5 3 3m-6-3-3-3m5 5-3-3"/></svg>`,
             color: 'green',
           },
+          {
+            name: 'Quiz Apicole',
+            description:
+              'Un jeu de cartes à boire où vous pariez sur la couleur, la valeur et le symbole.',
+            link: './tools/beekeeping_quiz.html',
+            icon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.83 2.17a2 2 0 00-1.66 0L8.5 4.34l-1.42 2.45a2 2 0 000 2.34l1.42 2.45 2.67 2.17a2 2 0 001.66 0l2.67-2.17 1.42-2.45a2 2 0 000-2.34L15.5 4.34z"></path><path d="M4.34 8.5L2.17 11.17a2 2 0 000 1.66l2.17 2.67 2.45 1.42a2 2 0 002.34 0l2.45-1.42L14.5 12.83"></path><path d="M19.66 8.5l2.17 2.67a2 2 0 010 1.66l-2.17 2.67-2.45 1.42a2 2 0 01-2.34 0l-2.45-1.42L9.5 12.83"></path></svg>`,
+            color: 'yellow',
+          },
         ];
 
         const toolsGrid = document.getElementById('tools-grid');
@@ -170,6 +184,8 @@
           amber: { bg: 'bg-amber-500/10', text: 'text-amber-400' },
           rose: { bg: 'bg-rose-500/10', text: 'text-rose-400' },
           red: { bg: 'bg-red-500/10', text: 'text-red-400' },
+          green: { bg: 'bg-green-500/10', text: 'text-green-400' },
+          yellow: { bg: 'bg-yellow-500/10', text: 'text-yellow-400' },
           sky: { bg: 'bg-sky-500/10', text: 'text-sky-400' },
         };
 
@@ -184,17 +200,15 @@
           tools.forEach((tool) => {
             const colors = colorClasses[tool.color] || colorClasses.indigo;
             const toolCardHTML = `
-                                <a href="${tool.link}" class="tool-card block bg-slate-800/50 p-6 rounded-2xl shadow-lg hover:shadow-indigo-500/10 overflow-hidden border border-slate-700">
-                                    <div class="flex items-center gap-5">
-                                        <div class="${colors.bg} p-3 rounded-xl">
-                                            <div class="${colors.text}">
-                                                ${tool.icon}
-                                            </div>
+                                <a href="${tool.link}" class="tool-card flex items-center gap-5 bg-slate-800/50 p-6 rounded-2xl shadow-lg hover:shadow-indigo-500/10 overflow-hidden border border-slate-700">
+                                    <div class="${colors.bg} p-3 rounded-xl flex-shrink-0">
+                                        <div class="${colors.text}">
+                                            ${tool.icon}
                                         </div>
-                                        <div class="flex-1">
-                                            <h2 class="text-lg font-bold text-slate-100">${tool.name}</h2>
-                                            <p class="text-sm text-slate-400 mt-1">${tool.description}</p>
-                                        </div>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h2 class="text-lg font-bold text-slate-100">${tool.name}</h2>
+                                        <p class="text-sm text-slate-400 mt-1">${tool.description}</p>
                                     </div>
                                 </a>
                             `;
@@ -211,6 +225,9 @@
           );
           renderTools(filteredTools);
         });
+
+        // Tri par défaut par ordre alphabétique
+        toolData.sort((a, b) => a.name.localeCompare(b.name));
 
         // Rendu initial
         renderTools(toolData);
