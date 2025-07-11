@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Défis de Soirée</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      .hidden {
+        display: none;
+      }
+      @keyframes popIn {
+        0% {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+        70% {
+          transform: scale(1.05);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .timer-pop {
+        animation: popIn 0.3s ease-out;
+      }
+      .btn-primary {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .rule-banner-anim {
+        animation: slideDown 0.5s ease-out forwards;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-900 text-gray-100 flex items-center justify-center min-h-screen p-4 bg-[url('https://www.transparenttextures.com/patterns/dark-matter.png')]"
+  >
+    <div
+      class="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-900/30 to-slate-900 opacity-80"
+    ></div>
+    <!-- Bouton de retour à l'accueil -->
+    <a
+      href="../index.html"
+      title="Retour à l'accueil"
+      class="absolute top-4 left-4 md:top-8 md:left-8 text-slate-400 hover:text-indigo-400 transition-colors z-20"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M19 12H5" />
+        <path d="m12 19-7-7 7-7" />
+      </svg>
+    </a>
+
+    <main class="relative z-10 w-full max-w-md">
+      <!-- Écran de Configuration -->
+      <div
+        id="setupScreen"
+        class="w-full mx-auto p-6 md:p-8 bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-2xl shadow-indigo-900/20 border border-slate-700 animate-fade-in"
+      >
+        <div class="text-center mb-8">
+          <div class="flex justify-center items-center gap-3">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="text-indigo-400"
+            >
+              <path d="M8 22h8" />
+              <path d="M7 16h10" />
+              <path
+                d="M12 16V5.5A2.5 2.5 0 0 0 9.5 3h-1A2.5 2.5 0 0 0 6 5.5V16"
+              />
+              <path d="M12 3v13" />
+              <path
+                d="m18 16 1-11.5a1.5 1.5 0 0 0-1.5-1.5h-1A1.5 1.5 0 0 0 15 4.5V16"
+              />
+            </svg>
+            <h1 class="text-4xl font-bold text-white">Défis de Soirée</h1>
+          </div>
+          <p class="text-indigo-300 mt-2">
+            Le jeu parfait pour animer vos soirées.
+          </p>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Section Participants -->
+          <div class="space-y-3">
+            <label
+              class="flex items-center gap-2 text-lg font-semibold text-white"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-indigo-400"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Participants
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="playerNameInput"
+                placeholder="Nom du joueur"
+                class="flex-grow bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+              />
+              <button
+                id="addPlayerBtn"
+                class="bg-indigo-600 text-white p-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-slate-600 btn-primary"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+            <div id="playersList" class="flex flex-wrap gap-2 pt-2"></div>
+          </div>
+
+          <!-- Section Objets -->
+          <div class="space-y-3">
+            <label
+              class="flex items-center gap-2 text-lg font-semibold text-white"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-indigo-400"
+              >
+                <path d="m21 16-4 4-4-4" />
+                <path d="M17 20V4" />
+                <path d="m3 8 4-4 4 4" />
+                <path d="M7 4v16" />
+              </svg>
+              Objets de la pièce
+            </label>
+            <div class="flex gap-2">
+              <input
+                type="text"
+                id="objectInput"
+                placeholder="Coussin, banane..."
+                class="flex-grow bg-slate-800 border border-slate-700 text-white placeholder-slate-500 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition"
+              />
+              <button
+                id="addObjectBtn"
+                class="bg-indigo-600 text-white p-2.5 rounded-lg hover:bg-indigo-700 transition-colors disabled:bg-slate-600 btn-primary"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </button>
+            </div>
+            <div id="objectsList" class="flex flex-wrap gap-2 pt-2"></div>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <button
+            id="startGameBtn"
+            disabled
+            class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg text-lg hover:bg-indigo-700 transition-all transform disabled:bg-slate-700 disabled:text-slate-400 disabled:cursor-not-allowed disabled:transform-none btn-primary"
+          >
+            Commencer la partie
+          </button>
+        </div>
+      </div>
+
+      <!-- Écran de Jeu -->
+      <div
+        id="gameScreen"
+        class="hidden w-full max-w-lg mx-auto p-6 md:p-8 bg-slate-900/80 backdrop-blur-sm rounded-2xl shadow-2xl shadow-indigo-900/20 border border-slate-700 flex flex-col text-center min-h-[500px]"
+      >
+        <div class="flex justify-between items-start mb-4">
+          <button
+            id="quitGameBtn"
+            class="text-slate-400 hover:text-white transition-colors text-sm"
+          >
+            Quitter
+          </button>
+          <button
+            id="muteBtn"
+            class="text-slate-400 hover:text-white transition-colors"
+          >
+            <svg
+              id="volumeIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            </svg>
+            <svg
+              id="volumeMuteIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="hidden"
+            >
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div
+          id="ruleBanner"
+          class="hidden w-full bg-yellow-500/10 text-yellow-300 p-3 rounded-lg mb-4 text-center"
+        >
+          <p>
+            <strong class="font-bold">Règle active :</strong>
+            <span id="ruleText"></span>
+          </p>
+          <p class="text-xs text-yellow-400/70">
+            Encore <span id="ruleTurnsCounter"></span> tour(s)
+          </p>
+        </div>
+
+        <div id="gameContent" class="flex-grow flex flex-col justify-center">
+          <p id="turnLabel" class="text-lg text-indigo-300 mb-2">
+            C'est au tour de
+          </p>
+          <h2 id="actorName" class="text-4xl font-bold text-white mb-6"></h2>
+
+          <div
+            class="bg-slate-800/50 p-6 rounded-lg min-h-[120px] flex items-center justify-center"
+          >
+            <div
+              id="challengeText"
+              class="text-xl md:text-2xl text-white leading-relaxed"
+            ></div>
+          </div>
+
+          <div id="timerDisplay" class="hidden text-center my-4">
+            <p
+              id="timerText"
+              class="text-7xl font-bold text-white tracking-tighter"
+            ></p>
+            <p class="text-indigo-300">secondes restantes</p>
+          </div>
+        </div>
+
+        <div id="gameButtons" class="mt-6 h-14">
+          <button
+            id="revealBtn"
+            class="hidden w-full bg-yellow-500 text-slate-900 font-bold py-3 px-4 rounded-lg text-lg transition-all transform flex items-center justify-center gap-2 btn-primary"
+          >
+            Révéler le défi (cache l'écran !)
+          </button>
+          <button
+            id="startTimerBtn"
+            class="hidden w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-all transform flex items-center justify-center gap-2 btn-primary"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Lancer le chronomètre
+          </button>
+          <button
+            id="stopTimerBtn"
+            class="hidden w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-all transform flex items-center justify-center gap-2 btn-primary"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            </svg>
+            Arrêter le chronomètre
+          </button>
+          <div
+            id="validationButtons"
+            class="hidden w-full grid grid-cols-2 gap-4"
+          >
+            <button
+              id="failBtn"
+              class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-colors btn-primary flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Raté
+            </button>
+            <button
+              id="successBtn"
+              class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-colors btn-primary flex items-center justify-center gap-2"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Réussi
+            </button>
+          </div>
+          <button
+            id="nextChallengeBtn"
+            class="hidden w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-all transform flex items-center justify-center gap-2 btn-primary"
+          >
+            Défi Suivant
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal pour défi longue durée -->
+    <div
+      id="longTermChallengeModal"
+      class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-30 p-4"
+    >
+      <div
+        class="bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center animate-fade-in"
+      >
+        <h3 class="text-2xl font-bold text-white mb-4">
+          Vérification du défi !
+        </h3>
+        <p class="text-slate-300 mb-2">
+          Alors,
+          <strong id="longTermPlayerName" class="text-indigo-400"></strong>,
+          as-tu réussi ce défi ?
+        </p>
+        <p
+          id="longTermChallengeText"
+          class="bg-slate-700/50 p-4 rounded-lg text-white mb-6"
+        ></p>
+        <div class="grid grid-cols-2 gap-4">
+          <button
+            id="longTermFailBtn"
+            class="w-full bg-red-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-colors btn-primary flex items-center justify-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Non...
+          </button>
+          <button
+            id="longTermSuccessBtn"
+            class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-lg text-lg transition-colors btn-primary flex items-center justify-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Oui !
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- Game Data (Expanded and Reorganized) ---
+      const challengesDB = {
+        playerActions: [
+          'faire un compliment sincère à {targetPlayer}',
+          'regarder {targetPlayer} dans les yeux pendant 30 secondes sans rire',
+          'échanger une chaussette avec {targetPlayer}',
+          'faire un bras de fer avec {targetPlayer}',
+          'créer un surnom ridicule pour {targetPlayer} pour le reste de la soirée',
+          'laisser {targetPlayer} te dessiner une moustache sur le visage',
+          'trouver 3 points communs avec {targetPlayer}',
+          'laisser {targetPlayer} te donner un nouveau style de coiffure (avec les moyens du bord).',
+          'proposer un "toast" en l\'honneur de {targetPlayer} et boire à sa santé.',
+          'tenter de deviner 3 choses sur {targetPlayer} (sa couleur préférée, son talent caché, etc.).',
+          'écrire un poème de quatre lignes sur {targetPlayer}.',
+          'demander à {targetPlayer} de te raconter sa meilleure blague.',
+          'deviner la chanson préférée de {targetPlayer}.',
+          "laisser {targetPlayer} choisir un mot que tu devras placer dans toutes tes phrases jusqu'au prochain tour.",
+          'faire un pierre-feuille-ciseaux en 3 manches contre {targetPlayer}.',
+          "faire semblant d'être le garde du corps de {targetPlayer} pendant 30 secondes.",
+          'donner un cours de yoga de 30 secondes à {targetPlayer}.',
+          'faire un portrait de {targetPlayer} de la main gauche (ou droite si tu es gaucher) en 30 secondes.',
+          'te mettre à genoux et faire une fausse demande en mariage à {targetPlayer}.',
+          'inventer un rap sur {targetPlayer}.',
+          'trouver un sosie de célébrité à {targetPlayer} et justifier ton choix.',
+          'rejouer une scène de film célèbre avec {targetPlayer}.',
+          'danser le tango avec {targetPlayer} pendant 30 secondes (la musique est dans votre tête).',
+          'laisser {targetPlayer} écrire un mot (approprié) sur ton front.',
+          'créer un cocktail pour {targetPlayer} avec 3 ingrédients au hasard.',
+          "te comporter comme le plus grand fan de {targetPlayer} jusqu'à ton prochain tour.",
+          'jouer à "je te tiens, tu me tiens par la barbichette" avec {targetPlayer}.',
+        ],
+        animals: [
+          'un poulet',
+          'un T-Rex',
+          'un chat',
+          'un paresseux',
+          'un pingouin',
+          'un crabe',
+          'un serpent',
+          'un gorille',
+          'un flamant rose',
+          'un kangourou',
+          'un koala',
+          'un écureuil',
+          'un aigle',
+          'un hibou',
+          'une autruche',
+          'un escargot',
+          'un caméléon',
+          'une pieuvre',
+          'un dauphin',
+          'un moustique',
+          'un hérisson',
+          'un castor',
+          'une loutre',
+          'un morse',
+          'un taureau',
+          'une chauve-souris',
+          'un chien',
+          'un pivert',
+          'un panda',
+        ],
+        celebrities: [
+          'Céline Dion',
+          'Johnny Hallyday',
+          'Emmanuel Macron',
+          'Thomas Pesquet',
+          'Daft Punk',
+          'Charlie Chaplin',
+          'Michael Jackson',
+          'Édith Piaf',
+          'Louis de Funès',
+          'Zinédine Zidane',
+          'un présentateur du JT',
+          'un personnage de la Cité de la Peur',
+          'Dark Vador',
+          'Yoda',
+          'Jul',
+          'Angèle',
+          'Mylène Farmer',
+          'Omar Sy',
+          'Jean Dujardin',
+          'Marion Cotillard',
+          'Vincent Cassel',
+          'Léa Seydoux',
+          'Tahar Rahim',
+          'Isabelle Huppert',
+          'Gérard Depardieu',
+          'Catherine Deneuve',
+          'Alain Delon',
+          'Leonardo DiCaprio',
+          'Brad Pitt',
+          'Scarlett Johansson',
+          'Dwayne "The Rock" Johnson',
+          'Mr. Bean',
+          'Harry Potter',
+          'Hermione Granger',
+          'Stromae',
+          'Orelsan',
+          'Aya Nakamura',
+          'David Guetta',
+          'Serge Gainsbourg',
+          'Beyoncé',
+          'Rihanna',
+          'Freddie Mercury',
+          'Bob Marley',
+          'Kylian Mbappé',
+          'Antoine Griezmann',
+          'Teddy Riner',
+          'Usain Bolt',
+          'Serena Williams',
+          'Sophie Marceau',
+          'Un candidat de Koh-Lanta',
+          'Le Père Fouras',
+          'Astérix',
+          'Obélix',
+          'Lucky Luke',
+          'Spider-Man',
+          'Batman',
+          'Wonder Woman',
+        ],
+        actionsToMime: [
+          'marcher sur la lune',
+          'gagner au loto',
+          'se brosser les dents',
+          'être un gardien de but qui arrête un penalty',
+          'essayer de mettre un fil dans une aiguille',
+          'repeindre un mur',
+          'être un T-Rex qui essaie de faire son lit',
+          'déboucher des toilettes',
+          'construire un meuble IKEA',
+          'mettre une housse de couette',
+          'marcher contre un vent très fort',
+          'se battre avec un distributeur automatique qui ne rend pas la monnaie',
+          'tenter de tuer un moustique dans le noir',
+          'monter une tente Quechua',
+          "être un chef d'orchestre passionné",
+          "être un DJ qui met l'ambiance",
+          'participer à un concours du plus gros mangeur de hot-dogs',
+          'glisser sur une peau de banane',
+          'être un robot qui découvre les émotions',
+          'faire du patin à glace pour la première fois',
+          'traire une vache',
+          'poser du vernis à ongles sans déborder',
+          'être un archéologue qui découvre un trésor',
+          'essayer de plier une carte routière',
+          "gonfler un ballon jusqu'à ce qu'il éclate",
+          'se regarder dans un miroir déformant',
+          'être un ninja',
+          'faire décoller une fusée avec un compte à rebours',
+          "être un chat qui essaie de faire tomber un objet d'une étagère",
+          "passer l'aspirateur et aspirer quelque chose d'important",
+          'faire des crêpes',
+          'être un garde royal anglais qui ne doit pas bouger',
+          'apprendre à faire du vélo',
+          'se retrouver enfermé dehors sous la pluie',
+        ],
+        pictionaryWords: [
+          'Tour Eiffel',
+          'un chat qui fait du surf',
+          'la Joconde',
+          'un bonhomme de neige',
+          'une guitare électrique',
+          'un dragon',
+          'un bateau de pirate',
+          'un hamburger',
+          'une araignée',
+          'le système solaire',
+          'un réveil matin',
+          'une paire de lunettes',
+          'un ananas',
+          'un microscope',
+          'une machine à écrire',
+          'un arc-en-ciel',
+          'un château de sable',
+          'un cactus',
+          'un pop-corn',
+          'un sous-marin',
+          'une montgolfière',
+          'un igloo',
+          'un squelette',
+          'une boussole',
+        ],
+        objectActions: [
+          'vendre cet objet comme si tu étais au télé-achat',
+          "faire une déclaration d'amour dramatique à cet objet",
+          "utiliser cet objet comme chapeau jusqu'à ton prochain tour",
+          "inventer une histoire sur l'origine secrète de cet objet",
+          'faire de cet objet la mascotte de la soirée et lui donner un nom',
+          'prouver par A+B que cet objet peut sauver le monde',
+          'utiliser cet objet comme partenaire de danse',
+          'présenter cet objet comme une invention révolutionnaire dans une émission type "Qui veut être mon associé ?".',
+          'faire parler cet objet avec une voix et une personnalité que tu lui inventes.',
+          'utiliser cet objet comme un instrument de musique et nous jouer un air.',
+          "raconter comment cet objet t'a sauvé la vie (de manière totalement improbable).",
+          'proposer 3 utilisations alternatives et complètement farfelues pour cet objet.',
+          "faire de cet objet le méchant d'un film et décrire son plan diabolique.",
+          'donner un cours de fitness de 30 secondes en utilisant cet objet comme équipement.',
+          'faire tenir cet objet en équilibre sur ta tête le plus longtemps possible.',
+          'utiliser cet objet comme une marionnette pour raconter une blague.',
+          'créer un slogan publicitaire et un jingle pour cet objet.',
+          'cacher cet objet sur toi et laisser les autres deviner où il est en posant des questions fermées (oui/non).',
+          'mimer une scène de crime où cet objet est la pièce à conviction principale.',
+          'demander pardon à cet objet pour quelque chose que tu as fait.',
+          'décrire cet objet comme le ferait un poète ou un philosophe.',
+        ],
+        soloActions: [
+          'raconte une blague. Si personne ne rit, tu bois.',
+          'fais 10 pompes ou bois.',
+          "parle avec un accent ridicule jusqu'à ton prochain tour.",
+          'fais le tour de la pièce à cloche-pied ou bois.',
+          'imite un emoji choisi par les autres joueurs ou bois.',
+          'laisse les autres joueurs te poser une question "Action ou Vérité".',
+          'cite 5 capitales européennes en 15 secondes.',
+          'invente un slogan pour un produit inexistant ou bois.',
+          "porte tes chaussettes en guise de gants jusqu'à ton prochain tour.",
+          "fais le moonwalk (dans les règles de l'art) ou bois.",
+          'tente de jongler avec 3 objets (pas en verre !).',
+          'tiens en équilibre sur un pied, les yeux fermés, pendant 15 secondes. Si tu échoues, bois.',
+          "parle en rimes jusqu'à ton prochain tour.",
+          'fais un discours de remerciement comme si tu venais de gagner un Oscar pour le "Meilleur Invité de la Soirée".',
+          'nomme 5 films avec le même acteur ou la même actrice en 15 secondes ou bois.',
+          "jusqu'à ton prochain tour, tu dois te lever et t'incliner cérémonieusement avant de parler.",
+          "ne communique que par des bruits d'animaux jusqu'à ton prochain tour.",
+          "essaie de toucher ton nez avec ta langue. Si tu n'y arrives pas, bois.",
+          "récite l'alphabet à l'envers. Tu as droit à 2 erreurs, sinon bois.",
+          "le sol est de la lave ! Tu ne dois plus toucher le sol jusqu'à ton prochain tour.",
+          "décris ce que tu as mangé à midi comme si c'était un plat 5 étoiles dans un grand restaurant ou bois.",
+          'fais le tour de la pièce en marchant à reculons ou bois.',
+        ],
+        mostLikelyTo: [
+          'oublier son propre anniversaire',
+          'gagner à la loterie et tout dépenser en une semaine',
+          'survivre à une apocalypse zombie',
+          'se perdre dans sa propre ville',
+          'pleurer devant un film Disney',
+          'parler à des animaux',
+          'devenir président',
+          'passer à la télé dans une émission de faits divers',
+          'se faire attaquer par un oiseau',
+          'chanter faux à une soirée karaoké',
+          'se réveiller avec une coupe de cheveux improbable',
+          'déclarer sa flamme à une pizza',
+          "s'endormir au cinéma",
+          'partir en vacances sur un coup de tête',
+          'devenir célèbre sur TikTok pour une raison absurde',
+          'envoyer un message compromettant au mauvais destinataire',
+          'dire "toi aussi" à un serveur qui souhaite "bon appétit"',
+          "commencer un régime et l'arrêter une heure plus tard avec un fast-food",
+          'avoir un fou rire au pire moment possible',
+          'essayer de réparer quelque chose et finalement aggraver la situation',
+          'croire sincèrement à son horoscope',
+          "se plaindre qu'il fait trop chaud en été et trop froid en hiver",
+          'déclencher une alarme incendie en cuisinant des pâtes',
+          'se perdre en utilisant un GPS',
+          "partir d'une soirée sans dire au revoir à personne",
+          "adopter tous les animaux d'un refuge",
+          "lire la fin d'un livre ou d'un film avant de l'avoir terminé",
+          'tenter de monter un meuble IKEA sans la notice',
+          'passer une heure à choisir un film pour finalement regarder des vidéos de chats',
+          'avoir une conversation entière et très sérieuse avec son animal de compagnie',
+          'raconter une histoire en commençant par la fin',
+          'commander le plat le plus bizarre du menu, juste pour essayer',
+          "collectionner quelque chose d'insolite",
+          'proposer "juste un dernier verre" à 4h du matin.',
+        ],
+        neverHaveIEver: [
+          "regardé dans le téléphone de quelqu'un d'autre sans sa permission",
+          'fait semblant de dormir pour éviter une conversation',
+          'rigolé à un moment inapproprié',
+          'mangé de la nourriture tombée par terre',
+          'menti sur mon âge',
+          "re-offert un cadeau que j'avais reçu",
+          "prétendu aimer un film que je déteste pour avoir l'air cool",
+          'utilisé le mot "quoi" à la fin d\'une phrase pour faire comme les jeunes',
+          'chanté sous la douche cette semaine',
+          'stalké un ex sur les réseaux sociaux',
+          'fait semblant de connaître une chanson que tout le monde chantait',
+          'pleuré devant une émission de télé-réalité',
+          'mangé les restes de pizza froids pour le petit déjeuner.',
+          "fait semblant d'être au téléphone pour éviter de parler à quelqu'un dans la rue.",
+          'cherché mon propre nom sur Google pour voir ce qui sort.',
+          "ri à une blague que je n'avais pas comprise du tout.",
+          'triché à un jeu de société.',
+          'tué une plante par manque de soin.',
+          'dit "j\'arrive" alors que je n\'étais même pas encore parti de chez moi.',
+          'essayé de pousser une porte sur laquelle il était écrit en gros "TIREZ".',
+          "liké accidentellement une très vieille photo en stalkant le profil de quelqu'un.",
+          'porté des chaussettes dépareillées volontairement.',
+          "mangé un plat destiné à quelqu'un d'autre dans le frigo commun.",
+          'fait semblant de ne pas avoir vu un message pour avoir une excuse pour y répondre tard.',
+          'testé une chorégraphie TikTok en secret.',
+          'parlé à moi-même à voix haute dans un lieu public.',
+          'fini une série ou un film en une seule nuit.',
+          'raconté un spoiler sans faire exprès.',
+          "utilisé l'excuse \"j'ai pas de réseau\" alors que c'était faux.",
+          'mis du ketchup avec des pâtes.',
+          'fait semblant de connaître la personne à qui on me présentait.',
+          'pris un shampoing ou un gel douche dans un hôtel.',
+        ],
+        categories: [
+          'Marques de voitures',
+          'Personnages de Disney',
+          "Pays d'Europe",
+          'Types de fromage',
+          'Super-héros',
+          'Marques de vêtements',
+          'Cocktails',
+          'Instruments de musique',
+          'Animaux de la ferme',
+          'Capitales du monde',
+          'Races de chiens',
+          'Personnages de jeux vidéo',
+          'Marques de céréales',
+          'Films des années 90',
+          'Chansons françaises des années 80',
+          'Légumes verts',
+          'Marques de chocolat',
+          "Choses qu'on trouve dans une salle de bain",
+          'Sports olympiques',
+          'Desserts',
+          'Acteurs/Actrices français(es)',
+          'Méchants de films',
+          'Marques de bière',
+          'Applications de smartphone',
+          'Choses qui riment avec "-age"',
+          'Titres de livres célèbres',
+          'Groupes de rock',
+          'Fromages italiens',
+          'Personnages de la série "Friends"',
+        ],
+        surpriseRules: [
+          {
+            text: "Personne ne doit dire le mot 'je'. Le premier qui se trompe boit une gorgée.",
+            duration: 3,
+          },
+          {
+            text: 'Tout le monde doit parler avec un accent belge. Le premier qui oublie boit une gorgée.',
+            duration: 2,
+          },
+          {
+            text: 'Interdiction de poser son verre sur la table. Le premier qui se trompe boit une gorgée.',
+            duration: 3,
+          },
+          {
+            text: "Chaque phrase doit se terminer par '...n'est-ce pas ?'. Un oubli = une gorgée.",
+            duration: 2,
+          },
+          {
+            text: 'Le joueur à gauche de celui qui joue doit boire une gorgée si le défi est raté.',
+            duration: 3,
+          },
+          {
+            text: 'Le joueur qui a pioché cette carte est le "Maître des Pouces". À tout moment, il peut poser son pouce sur la table. Le dernier joueur à l\'imiter boit une gorgée.',
+            duration: 3,
+          },
+          {
+            text: 'Interdiction de dire les prénoms. Pour parler à quelqu\'un, il faut le désigner par une de ses caractéristiques (ex: "le barbu", "celle en bleu"). Un oubli = une gorgée.',
+            duration: 2,
+          },
+          {
+            text: 'Tout le monde doit parler de soi à la troisième personne (ex: "Marc a soif" au lieu de "J\'ai soif"). Le premier qui se trompe boit une gorgée.',
+            duration: 3,
+          },
+          {
+            text: 'Le sens du jeu est inversé pour les prochains tours.',
+            duration: 3,
+          },
+          {
+            text: "Règle du petit doigt : tout le monde doit boire avec le petit doigt en l'air. Oublier, c'est boire une gorgée de plus.",
+            duration: 2,
+          },
+          {
+            text: 'Avant de boire une gorgée, il faut crier "SKÅL !" comme un viking. Le silence coûte une gorgée supplémentaire.',
+            duration: 3,
+          },
+          {
+            text: "Le contact visuel est interdit. Le premier qui regarde quelqu'un dans les yeux pendant plus de 2 secondes boit une gorgée.",
+            duration: 2,
+          },
+          {
+            text: "Partenaires de boisson ! Tu es lié au joueur en face de toi. Quand l'un boit, l'autre boit aussi.",
+            duration: 2,
+          },
+          {
+            text: 'Interdiction de rire en montrant les dents. Chaque dérapage coûte une gorgée.',
+            duration: 2,
+          },
+          {
+            text: "Chaque joueur donne un surnom au joueur à sa droite. Il faudra utiliser ces surnoms jusqu'à la fin de la règle.",
+            duration: 3,
+          },
+        ],
+      };
+
+      // --- Game State ---
+      let players = [];
+      let objects = [];
+      let actorIndex = 0;
+      let isMuted = false;
+      let timerInterval;
+      let audioCtx;
+      let currentSecretAnswer = '';
+      let activeRule = null;
+      let ruleTurnsLeft = 0;
+      let longTermChallenges = {};
+
+      // --- DOM Elements ---
+      const setupScreen = document.getElementById('setupScreen');
+      const gameScreen = document.getElementById('gameScreen');
+      const playerNameInput = document.getElementById('playerNameInput');
+      const addPlayerBtn = document.getElementById('addPlayerBtn');
+      const playersList = document.getElementById('playersList');
+      const objectInput = document.getElementById('objectInput');
+      const addObjectBtn = document.getElementById('addObjectBtn');
+      const objectsList = document.getElementById('objectsList');
+      const startGameBtn = document.getElementById('startGameBtn');
+      const quitGameBtn = document.getElementById('quitGameBtn');
+      const muteBtn = document.getElementById('muteBtn');
+      const ruleBanner = document.getElementById('ruleBanner');
+      const ruleText = document.getElementById('ruleText');
+      const ruleTurnsCounter = document.getElementById('ruleTurnsCounter');
+      const turnLabel = document.getElementById('turnLabel');
+      const actorName = document.getElementById('actorName');
+      const challengeText = document.getElementById('challengeText');
+      const timerDisplay = document.getElementById('timerDisplay');
+      const timerText = document.getElementById('timerText');
+      const revealBtn = document.getElementById('revealBtn');
+      const startTimerBtn = document.getElementById('startTimerBtn');
+      const stopTimerBtn = document.getElementById('stopTimerBtn');
+      const validationButtons = document.getElementById('validationButtons');
+      const failBtn = document.getElementById('failBtn');
+      const successBtn = document.getElementById('successBtn');
+      const nextChallengeBtn = document.getElementById('nextChallengeBtn');
+      const longTermChallengeModal = document.getElementById(
+        'longTermChallengeModal'
+      );
+      const longTermPlayerName = document.getElementById('longTermPlayerName');
+      const longTermChallengeText = document.getElementById(
+        'longTermChallengeText'
+      );
+      const longTermFailBtn = document.getElementById('longTermFailBtn');
+      const longTermSuccessBtn = document.getElementById('longTermSuccessBtn');
+
+      // --- Helper Functions ---
+      const getRandomItem = (arr) =>
+        arr[Math.floor(Math.random() * arr.length)];
+      const getRandomSips = () => Math.floor(Math.random() * 3) + 1;
+
+      const saveState = () => {
+        sessionStorage.setItem('ds_players', JSON.stringify(players));
+        sessionStorage.setItem('ds_objects', JSON.stringify(objects));
+      };
+
+      const createTag = (text, list, index) => {
+        const tag = document.createElement('div');
+        tag.className =
+          'bg-indigo-900/50 text-indigo-200 text-sm font-medium px-3 py-1.5 rounded-full flex items-center gap-2 animate-fade-in';
+        tag.innerHTML = `<span>${text}</span><button data-index="${index}" class="remove-btn text-indigo-300 hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>`;
+        return tag;
+      };
+
+      const renderList = (list, container, listName) => {
+        container.innerHTML = '';
+        list.forEach((item, index) => {
+          const tag = createTag(item, list, index);
+          tag.dataset.list = listName;
+          container.appendChild(tag);
+        });
+        if (listName === 'players') {
+          startGameBtn.disabled = list.length < 2;
+        }
+      };
+
+      const handleAddItem = (input, list, container, listName) => {
+        const value = input.value.trim();
+        if (value) {
+          list.push(value);
+          input.value = '';
+          renderList(list, container, listName);
+          saveState();
+        }
+      };
+
+      const handleRemoveItem = (list, index, container, listName) => {
+        list.splice(index, 1);
+        renderList(list, container, listName);
+        saveState();
+      };
+
+      const showValidation = () => {
+        startTimerBtn.classList.add('hidden');
+        stopTimerBtn.classList.add('hidden');
+        revealBtn.classList.add('hidden');
+
+        if (currentSecretAnswer) {
+          challengeText.innerHTML = `La réponse était : <strong class="text-yellow-400">${currentSecretAnswer}</strong>`;
+          setTimeout(() => {
+            challengeText.innerHTML = `Alors, <strong class="text-indigo-400">${players[actorIndex]}</strong>, est-ce que les autres ont deviné que c'était <strong class="text-yellow-400">${currentSecretAnswer}</strong> ?`;
+            validationButtons.classList.remove('hidden');
+          }, 3000);
+        } else {
+          validationButtons.classList.remove('hidden');
+        }
+      };
+
+      const updateRuleBanner = () => {
+        if (activeRule && ruleTurnsLeft > 0) {
+          ruleText.textContent = activeRule.text;
+          ruleTurnsCounter.textContent = ruleTurnsLeft;
+          ruleBanner.classList.remove('hidden');
+          ruleBanner.classList.add('rule-banner-anim');
+        } else {
+          ruleBanner.classList.add('hidden');
+          activeRule = null;
+          ruleTurnsLeft = 0;
+        }
+      };
+
+      const showLongTermChallengeModal = (player) => {
+        longTermPlayerName.textContent = player;
+        longTermChallengeText.textContent =
+          longTermChallenges[player].challenge;
+        longTermChallengeModal.classList.remove('hidden');
+      };
+
+      // --- Game Logic ---
+      const generateChallenge = () => {
+        startTimerBtn.classList.add('hidden');
+        stopTimerBtn.classList.add('hidden');
+        validationButtons.classList.add('hidden');
+        nextChallengeBtn.classList.add('hidden');
+        revealBtn.classList.add('hidden');
+        timerDisplay.classList.add('hidden');
+        clearInterval(timerInterval);
+        currentSecretAnswer = '';
+
+        const actor = players[actorIndex];
+
+        if (longTermChallenges[actor]) {
+          showLongTermChallengeModal(actor);
+          return;
+        }
+
+        if (!activeRule && Math.random() < 0.2) {
+          activeRule = getRandomItem(challengesDB.surpriseRules);
+          ruleTurnsLeft = activeRule.duration;
+        }
+        updateRuleBanner();
+
+        turnLabel.classList.remove('hidden');
+        actorName.classList.remove('hidden');
+
+        const possibleChallengeTypes = [
+          'playerAction',
+          'playerAction',
+          'playerAction',
+          'solo',
+          'solo',
+          'solo',
+          'mostLikelyTo',
+          'mostLikelyTo',
+          'neverHaveIEver',
+          'neverHaveIEver',
+          'category',
+          'category',
+          'mime',
+          'pictionary',
+        ];
+        if (objects.length > 0) {
+          possibleChallengeTypes.push('objectAction');
+        }
+
+        const challengeType = getRandomItem(possibleChallengeTypes);
+
+        let text = '';
+        let time = 0;
+        let isGroupChallenge = false;
+        let sips = getRandomSips();
+        let isSecretChallenge = false;
+        let secretRevealText = '';
+        let isLongTerm = false;
+
+        switch (challengeType) {
+          case 'playerAction':
+            let targetPlayer = getRandomItem(
+              players.filter((p) => p !== actor)
+            );
+            if (!targetPlayer) targetPlayer = actor;
+            text = `${actor}, ${getRandomItem(
+              challengesDB.playerActions
+            ).replace('{targetPlayer}', targetPlayer)}`;
+            if (text.includes('30 secondes')) time = 30;
+            break;
+          case 'mime':
+            isSecretChallenge = true;
+            time = 30;
+            const mimeType = getRandomItem(['animal', 'celebrity', 'action']);
+            if (mimeType === 'animal') {
+              currentSecretAnswer = getRandomItem(challengesDB.animals);
+              text = `${actor}, tu dois faire deviner un animal.`;
+            } else if (mimeType === 'celebrity') {
+              currentSecretAnswer = getRandomItem(challengesDB.celebrities);
+              text = `${actor}, tu dois faire deviner une célébrité.`;
+            } else {
+              currentSecretAnswer = getRandomItem(challengesDB.actionsToMime);
+              text = `${actor}, tu dois mimer une action.`;
+            }
+            secretRevealText = 'MIME !';
+            break;
+          case 'pictionary':
+            isSecretChallenge = true;
+            time = 45;
+            currentSecretAnswer = getRandomItem(challengesDB.pictionaryWords);
+            text = `${actor}, tu dois faire deviner un dessin.`;
+            secretRevealText = 'DESSINEZ !';
+            break;
+          case 'objectAction':
+            const object = getRandomItem(objects);
+            text = `${actor}, prends le/la "${object}" et ${getRandomItem(
+              challengesDB.objectActions
+            )}.`;
+            isLongTerm = text.includes("jusqu'à ton prochain tour");
+            if (!isLongTerm) {
+              time = 30;
+            }
+            break;
+          case 'solo':
+            text = `Défi pour ${actor}: ${getRandomItem(
+              challengesDB.soloActions
+            ).replace('{sips}', sips)}`;
+            isLongTerm = text.includes("jusqu'à ton prochain tour");
+            if (text.includes('10 secondes') || text.includes('15 secondes'))
+              time = text.includes('10 secondes') ? 10 : 15;
+            break;
+          case 'category':
+            isGroupChallenge = true;
+            text = `Catégorie : ${getRandomItem(
+              challengesDB.categories
+            )}. Chacun son tour, le premier qui se trompe boit ${sips} gorgée(s).`;
+            break;
+          case 'mostLikelyTo':
+            isGroupChallenge = true;
+            text = `Qui est le plus susceptible de... ${getRandomItem(
+              challengesDB.mostLikelyTo
+            )} ? La personne désignée boit ${sips} gorgée(s).`;
+            break;
+          case 'neverHaveIEver':
+            isGroupChallenge = true;
+            text = `Je n'ai jamais... ${getRandomItem(
+              challengesDB.neverHaveIEver
+            )}. Ceux qui l'ont fait boivent ${sips} gorgée(s).`;
+            break;
+        }
+
+        if (isGroupChallenge) {
+          turnLabel.classList.add('hidden');
+          actorName.classList.add('hidden');
+        } else {
+          actorName.textContent = actor;
+        }
+
+        challengeText.innerHTML = text;
+        challengeText.dataset.time = time;
+        challengeText.dataset.secretReveal = secretRevealText;
+
+        const challengeContainer = challengeText.parentElement;
+        challengeContainer.classList.remove('animate-fade-in');
+        void challengeContainer.offsetWidth;
+        challengeContainer.classList.add('animate-fade-in');
+
+        if (isLongTerm) {
+          longTermChallenges[actor] = { challenge: text };
+          nextChallengeBtn.classList.remove('hidden');
+        } else if (isSecretChallenge) {
+          revealBtn.classList.remove('hidden');
+        } else if (time > 0) {
+          startTimerBtn.classList.remove('hidden');
+        } else if (isGroupChallenge) {
+          nextChallengeBtn.classList.remove('hidden');
+        } else {
+          showValidation();
+        }
+      };
+
+      const startTimer = () => {
+        let timeLeft = parseInt(challengeText.dataset.time, 10);
+        timerText.textContent = timeLeft;
+
+        startTimerBtn.classList.add('hidden');
+        stopTimerBtn.classList.remove('hidden');
+        timerDisplay.classList.remove('hidden');
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          timerText.textContent = timeLeft;
+          timerText.classList.remove('timer-pop');
+          void timerText.offsetWidth;
+          timerText.classList.add('timer-pop');
+
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.classList.add('hidden');
+            showValidation();
+            if (!isMuted && audioCtx) {
+              const oscillator = audioCtx.createOscillator();
+              const gainNode = audioCtx.createGain();
+              oscillator.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              oscillator.type = 'sine';
+              oscillator.frequency.setValueAtTime(880, audioCtx.currentTime);
+              gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(
+                0.0001,
+                audioCtx.currentTime + 0.5
+              );
+              oscillator.start(audioCtx.currentTime);
+              oscillator.stop(audioCtx.currentTime + 0.5);
+            }
+          }
+        }, 1000);
+      };
+
+      const goToNextTurn = () => {
+        if (ruleTurnsLeft > 0) {
+          ruleTurnsLeft--;
+        }
+        updateRuleBanner();
+        actorIndex = (actorIndex + 1) % players.length;
+        generateChallenge();
+      };
+
+      const showResult = (message) => {
+        validationButtons.classList.add('hidden');
+        challengeText.innerHTML = message;
+        challengeText.parentElement.classList.remove('animate-fade-in');
+        void challengeText.parentElement.offsetWidth;
+        challengeText.parentElement.classList.add('animate-fade-in');
+        nextChallengeBtn.classList.remove('hidden');
+      };
+
+      // --- Event Listeners ---
+      document.addEventListener('DOMContentLoaded', () => {
+        const loadState = () => {
+          const savedPlayers = sessionStorage.getItem('ds_players');
+          if (savedPlayers) players = JSON.parse(savedPlayers);
+
+          const savedObjects = sessionStorage.getItem('ds_objects');
+          if (savedObjects) objects = JSON.parse(savedObjects);
+        };
+
+        loadState();
+        renderList(players, playersList, 'players');
+        renderList(objects, objectsList, 'objects');
+
+        addPlayerBtn.addEventListener('click', () =>
+          handleAddItem(playerNameInput, players, playersList, 'players')
+        );
+        playerNameInput.addEventListener(
+          'keypress',
+          (e) =>
+            e.key === 'Enter' &&
+            handleAddItem(playerNameInput, players, playersList, 'players')
+        );
+
+        addObjectBtn.addEventListener('click', () =>
+          handleAddItem(objectInput, objects, objectsList, 'objects')
+        );
+        objectInput.addEventListener(
+          'keypress',
+          (e) =>
+            e.key === 'Enter' &&
+            handleAddItem(objectInput, objects, objectsList, 'objects')
+        );
+
+        document.addEventListener('click', (e) => {
+          if (e.target.matches('.remove-btn')) {
+            const listName = e.target.parentElement.dataset.list;
+            const index = parseInt(e.target.dataset.index, 10);
+            if (listName === 'players')
+              handleRemoveItem(players, index, playersList, 'players');
+            if (listName === 'objects')
+              handleRemoveItem(objects, index, objectsList, 'objects');
+          }
+        });
+
+        startGameBtn.addEventListener('click', () => {
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          }
+          if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+          }
+
+          setupScreen.classList.add('hidden');
+          gameScreen.classList.remove('hidden');
+          gameScreen.classList.add('animate-fade-in');
+          actorIndex = 0;
+          activeRule = null;
+          ruleTurnsLeft = 0;
+          longTermChallenges = {};
+          generateChallenge();
+        });
+
+        const returnToSetup = () => {
+          gameScreen.classList.add('hidden');
+          setupScreen.classList.remove('hidden');
+          setupScreen.classList.add('animate-fade-in');
+          clearInterval(timerInterval);
+        };
+
+        quitGameBtn.addEventListener('click', returnToSetup);
+
+        muteBtn.addEventListener('click', () => {
+          isMuted = !isMuted;
+          document
+            .getElementById('volumeIcon')
+            .classList.toggle('hidden', isMuted);
+          document
+            .getElementById('volumeMuteIcon')
+            .classList.toggle('hidden', !isMuted);
+        });
+
+        revealBtn.addEventListener('click', () => {
+          revealBtn.classList.add('hidden');
+          challengeText.textContent = currentSecretAnswer;
+          setTimeout(() => {
+            challengeText.textContent = challengeText.dataset.secretReveal;
+            startTimer();
+          }, 2500); // Show the answer for 2.5 seconds
+        });
+
+        startTimerBtn.addEventListener('click', startTimer);
+
+        stopTimerBtn.addEventListener('click', () => {
+          clearInterval(timerInterval);
+          timerDisplay.classList.add('hidden');
+          showValidation();
+        });
+
+        successBtn.addEventListener('click', () => {
+          const sips = getRandomSips();
+          const sipsText = sips > 1 ? 'gorgées' : 'gorgée';
+          const message = `
+                <div class="flex flex-col items-center gap-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <p>Bravo <strong class="text-green-400">${players[actorIndex]}</strong> ! Tu peux distribuer <strong class="text-green-400">${sips}</strong> ${sipsText}.</p>
+                </div>
+            `;
+          showResult(message);
+        });
+
+        failBtn.addEventListener('click', () => {
+          const sips = getRandomSips();
+          const sipsText = sips > 1 ? 'gorgées' : 'gorgée';
+          const message = `
+                <div class="flex flex-col items-center gap-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <p>Dommage <strong class="text-red-400">${players[actorIndex]}</strong> ! Tu bois <strong class="text-red-400">${sips}</strong> ${sipsText}.</p>
+                </div>
+            `;
+          showResult(message);
+        });
+
+        nextChallengeBtn.addEventListener('click', goToNextTurn);
+
+        longTermSuccessBtn.addEventListener('click', () => {
+          longTermChallengeModal.classList.add('hidden');
+          const sips = getRandomSips();
+          const sipsText = sips > 1 ? 'gorgées' : 'gorgée';
+          const message = `
+                <div class="flex flex-col items-center gap-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-400"><path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                    <p>Félicitations, tu as réussi ton défi ! Distribue <strong class="text-green-400">${sips}</strong> ${sipsText}.</p>
+                </div>
+            `;
+          showResult(message);
+          delete longTermChallenges[players[actorIndex]];
+        });
+
+        longTermFailBtn.addEventListener('click', () => {
+          longTermChallengeModal.classList.add('hidden');
+          const sips = getRandomSips();
+          const sipsText = sips > 1 ? 'gorgées' : 'gorgée';
+          const message = `
+                <div class="flex flex-col items-center gap-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-400"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    <p>Oh non... Tu as échoué ! Bois <strong class="text-red-400">${sips}</strong> ${sipsText}.</p>
+                </div>
+            `;
+          showResult(message);
+          delete longTermChallenges[players[actorIndex]];
+        });
+      });
+    </script>
+  </body>
+</html>
