@@ -180,7 +180,7 @@
         <!-- Plateau de jeu -->
         <div
           id="table"
-          class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl p-4 flex flex-col items-center gap-4 mb-4 shadow-lg"
+          class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl p-4 flex flex-col items-center gap-4 mb-4"
         >
           <p
             id="round-instruction"
@@ -189,7 +189,7 @@
           <div id="drawn-card-placeholder" class="card card-back card-lg"></div>
         </div>
 
-        <div id="pyramid-area" class="hidden text-center my-4">
+        <div id="pyramid-area" class="hidden text-center mb-4">
           <h3 id="pyramid-title" class="text-2xl font-bold mb-4"></h3>
           <div
             id="pyramid-cards"
@@ -197,7 +197,7 @@
           ></div>
           <button
             id="next-pyramid-card-btn"
-            class="hidden mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full max-w-xs mx-auto"
+            class="hidden mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full max-w-xs mx-auto"
           >
             Révéler la carte
           </button>
@@ -205,12 +205,12 @@
 
         <div
           id="actions"
-          class="flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 min-h-[50px] w-full max-w-md mx-auto"
+          class="flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 w-full max-w-md mx-auto"
         ></div>
 
         <div
           id="message-area"
-          class="hidden text-center text-xl sm:text-2xl font-semibold mb-4 p-3 rounded-lg"
+          class="hidden text-center text-xl sm:text-2xl font-semibold mb-4 p-3 rounded-lg max-w-md mx-auto"
         ></div>
 
         <div id="current-player-hand-area" class="hidden space-y-6 mb-4"></div>
@@ -229,7 +229,7 @@
     </div>
 
     <script>
-      // --- ÉLÉMENTS DU DOM ---
+      // --- DOM ELEMENTS ---
       const setupScreen = document.getElementById('setup-screen');
       const gameScreen = document.getElementById('game-screen');
       const playerNameInput = document.getElementById('player-name-input');
@@ -256,7 +256,7 @@
       );
       const replayBtn = document.getElementById('replay-btn');
 
-      // --- ÉTAT DU JEU ---
+      // --- GAME STATE ---
       let gameState = {
         players: [],
         deck: [],
@@ -267,7 +267,7 @@
         revealedPyramidIndex: -1,
       };
 
-      // --- CONSTANTES DU JEU ---
+      // --- GAME CONSTANTS ---
       const SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
       const RANKS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
       const ROUND_INSTRUCTIONS = {
@@ -280,7 +280,7 @@
       const PLAYERS_STORAGE_KEY = 'quizApicolePlayers';
       const MAX_PLAYERS = 6;
 
-      // --- LOGIQUE DU JEU ---
+      // --- GAME LOGIC ---
       function savePlayersToSession() {
         sessionStorage.setItem(
           PLAYERS_STORAGE_KEY,
@@ -307,7 +307,7 @@
             deck.push({
               suit,
               rank: RANKS[i],
-              value: i, // Value is now 0-10
+              value: i,
               color: suit === 'hearts' || suit === 'diamonds' ? 'red' : 'black',
             });
           }
@@ -373,8 +373,8 @@
           case 1:
             result = choice === drawnCard.color;
             message = result
-              ? `Gagné ! Donnez ${sips} gorgée.`
-              : `Perdu ! Buvez ${sips} gorgée.`;
+              ? `Gagné ! Donnez ${sips} gorgée`
+              : `Perdu ! Buvez ${sips} gorgée`;
             break;
           case 2:
             const lastCard = player.hand[player.hand.length - 1];
@@ -382,16 +382,16 @@
               sips = 3;
               result = drawnCard.value === lastCard.value;
               message = result
-                ? `ÉGALITÉ ! Donnez ${sips} gorgées !`
-                : `Raté ! Buvez ${sips} gorgées.`;
+                ? `ÉGALITÉ ! Donnez ${sips} gorgées`
+                : `Raté ! Buvez ${sips} gorgées`;
             } else {
               result =
                 choice === 'higher'
                   ? drawnCard.value > lastCard.value
                   : drawnCard.value < lastCard.value;
               message = result
-                ? `Gagné ! Donnez ${sips} gorgée.`
-                : `Perdu ! Buvez ${sips} gorgée.`;
+                ? `Gagné ! Donnez ${sips} gorgée`
+                : `Perdu ! Buvez ${sips} gorgée`;
             }
             break;
           case 3:
@@ -406,12 +406,12 @@
                 drawnCard.value === card1.value ||
                 drawnCard.value === card2.value;
               message = result
-                ? `ÉGALITÉ ! Donnez ${sips} gorgées !`
-                : `Raté ! Buvez ${sips} gorgées.`;
+                ? `ÉGALITÉ ! Donnez ${sips} gorgées`
+                : `Raté ! Buvez ${sips} gorgées`;
             } else {
               sips = 1;
               if (minVal === maxVal) {
-                message = `Poteaux ! Impossible de parier "Intérieur" ou "Extérieur". Buvez ${sips} gorgée.`;
+                message = `Perdu ! Buvez ${sips} gorgée`;
                 result = false;
               } else {
                 result =
@@ -419,16 +419,16 @@
                     ? drawnCard.value > minVal && drawnCard.value < maxVal
                     : drawnCard.value < minVal || drawnCard.value > maxVal;
                 message = result
-                  ? `Gagné ! Donnez ${sips} gorgée.`
-                  : `Perdu ! Buvez ${sips} gorgée.`;
+                  ? `Gagné ! Donnez ${sips} gorgée`
+                  : `Perdu ! Buvez ${sips} gorgée`;
               }
             }
             break;
           case 4:
             result = choice === drawnCard.suit;
             message = result
-              ? `Gagné ! Donnez ${sips} gorgée.`
-              : `Perdu ! Buvez ${sips} gorgée.`;
+              ? `Gagné ! Donnez ${sips} gorgée`
+              : `Perdu ! Buvez ${sips} gorgée`;
             break;
           case 5:
             const rankIsOnTable = gameState.players
@@ -451,7 +451,7 @@
 
         actionsContainer.innerHTML = '';
         actionsContainer.className =
-          'flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 min-h-[50px] w-full max-w-md mx-auto';
+          'flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 w-full max-w-md mx-auto';
 
         const continueBtn = document.createElement('button');
         continueBtn.textContent = 'Tour Suivant';
@@ -463,6 +463,7 @@
 
       function nextTurn() {
         messageArea.classList.add('hidden');
+        messageArea.innerHTML = '';
         drawnCardPlaceholder.innerHTML = '';
         drawnCardPlaceholder.className = 'card card-back card-lg';
         gameState.currentPlayerIndex++;
@@ -476,6 +477,8 @@
 
       function startPyramidPhase(type) {
         actionsContainer.innerHTML = '';
+        messageArea.classList.add('hidden');
+        messageArea.innerHTML = '';
         gameState.gamePhase = type === 'take' ? 'pyramid_take' : 'pyramid_give';
         pyramidTitle.textContent =
           type === 'take' ? 'Pyramide - Buvez !' : 'Pyramide - Donnez !';
@@ -486,7 +489,6 @@
         }
         gameState.revealedPyramidIndex = -1;
         nextPyramidCardBtn.classList.remove('hidden');
-        messageArea.classList.add('hidden');
         render();
       }
 
@@ -495,24 +497,44 @@
         const revealedCard =
           gameState.pyramidCards[gameState.revealedPyramidIndex];
         if (!revealedCard) return;
+
         let messages = [];
-        const sips = Math.ceil(revealedCard.value / 2),
-          sipsText = sips > 1 ? 'gorgées' : 'gorgée';
-        gameState.players.forEach((player) => {
-          if (player.hand.some((card) => card.rank === revealedCard.rank)) {
-            if (gameState.gamePhase === 'pyramid_take') {
-              messages.push(`${player.name} boit ${sips} ${sipsText} !`);
-              player.sipsTaken += sips;
-            } else {
-              messages.push(`${player.name} donne ${sips} ${sipsText} !`);
-              player.sipsGiven += sips;
-            }
+        let isSuccess = true;
+
+        const sips = Math.ceil(revealedCard.value / 2);
+        const playersWithCard = gameState.players.filter((player) =>
+          player.hand.some((card) => card.rank === revealedCard.rank)
+        );
+
+        if (sips === 0) {
+          if (playersWithCard.length > 0) {
+            messages.push(`Chanceux ! personne ne boit`);
+          } else {
+            messages.push(`Dommage ! personne ne donne`);
           }
-        });
-        if (messages.length === 0)
-          displayMessage("Personne n'a cette carte.", true);
-        else displayMessage(messages.join('<br>'), false);
+          isSuccess = true;
+        } else {
+          const sipsText = sips > 1 ? 'gorgées' : 'gorgée';
+          if (playersWithCard.length > 0) {
+            playersWithCard.forEach((player) => {
+              if (gameState.gamePhase === 'pyramid_take') {
+                messages.push(`${player.name} boit ${sips} ${sipsText} !`);
+                player.sipsTaken += sips;
+              } else {
+                messages.push(`${player.name} donne ${sips} ${sipsText} !`);
+                player.sipsGiven += sips;
+              }
+            });
+            isSuccess = false;
+          } else {
+            messages.push("Personne n'a cette carte");
+            isSuccess = true;
+          }
+        }
+
+        displayMessage(messages.join('<br>'), isSuccess);
         render();
+
         if (
           gameState.revealedPyramidIndex >=
           gameState.pyramidCards.length - 1
@@ -521,7 +543,7 @@
           actionsContainer.innerHTML = '';
           const continueBtn = document.createElement('button');
           continueBtn.className =
-            'w-full max-w-xs mx-auto font-bold py-3 px-6 rounded-lg transition-colors bg-green-600 hover:bg-green-700';
+            'w-full max-w-xs mx-auto font-bold py-3 px-6 rounded-lg transition-colors bg-green-600 hover:bg-green-700 mt-4';
           if (gameState.gamePhase === 'pyramid_take') {
             continueBtn.textContent = 'Phase suivante';
             continueBtn.onclick = () => startPyramidPhase('give');
@@ -572,17 +594,18 @@
           sipsGiven: 0,
         }));
         messageArea.classList.add('hidden');
+        messageArea.innerHTML = '';
         actionsContainer.innerHTML = '';
         render();
       }
 
-      // --- FONCTIONS DE RENDU ---
+      // --- RENDER FUNCTIONS ---
       function renderDrawnCard(card) {
         const cardEl = createCardElement(card);
-        cardEl.classList.add('card-lg'); // Make the drawn card large
+        cardEl.classList.add('card-lg');
         cardEl.classList.add('card-reveal-animation');
         drawnCardPlaceholder.innerHTML = '';
-        drawnCardPlaceholder.className = ''; // Let the appended child define the appearance
+        drawnCardPlaceholder.className = '';
         drawnCardPlaceholder.appendChild(cardEl);
       }
 
@@ -593,10 +616,10 @@
 
         if (isSuitRound) {
           actionsContainer.className =
-            'grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 min-h-[50px] w-full max-w-md mx-auto';
+            'grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 w-full max-w-md mx-auto';
         } else {
           actionsContainer.className =
-            'flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 min-h-[50px] w-full max-w-md mx-auto';
+            'flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 w-full max-w-md mx-auto';
         }
 
         switch (gameState.currentRound) {
@@ -722,7 +745,7 @@
           const currentHandDiv = document.createElement('div');
           currentHandDiv.className = 'flex flex-wrap gap-2';
           if (currentPlayer.hand.length === 0)
-            currentHandDiv.textContent = 'Aucune carte.';
+            currentHandDiv.textContent = 'Aucune carte';
           else
             currentPlayer.hand.forEach((card) =>
               currentHandDiv.appendChild(createCardElement(card))
@@ -742,7 +765,7 @@
             playerDiv.innerHTML = `<h3 class="text-lg font-semibold mb-2">${player.name}</h3>`;
             const handDiv = document.createElement('div');
             handDiv.className = 'flex flex-wrap gap-2';
-            if (player.hand.length === 0) handDiv.textContent = 'Aucune carte.';
+            if (player.hand.length === 0) handDiv.textContent = 'Aucune carte';
             else
               player.hand.forEach((card) =>
                 handDiv.appendChild(createCardElement(card))
@@ -758,7 +781,7 @@
             playerDiv.innerHTML = `<h3 class="text-lg font-semibold mb-2">${player.name}</h3>`;
             const handDiv = document.createElement('div');
             handDiv.className = 'flex flex-wrap gap-2';
-            if (player.hand.length === 0) handDiv.textContent = 'Aucune carte.';
+            if (player.hand.length === 0) handDiv.textContent = 'Aucune carte';
             else
               player.hand.forEach((card) =>
                 handDiv.appendChild(createCardElement(card))
@@ -849,8 +872,9 @@
           table.classList.remove('hidden');
           pyramidArea.classList.add('hidden');
           playersArea.classList.remove('hidden');
+          actionsContainer.classList.remove('hidden');
           const player = gameState.players[gameState.currentPlayerIndex];
-          gameInfo.textContent = `Tour ${gameState.currentRound} - À ${player.name}`;
+          gameInfo.textContent = `Tour ${gameState.currentRound} - ${player.name}`;
           roundInstruction.textContent =
             ROUND_INSTRUCTIONS[gameState.currentRound];
           renderActions();
@@ -859,6 +883,7 @@
           table.classList.add('hidden');
           pyramidArea.classList.remove('hidden');
           playersArea.classList.remove('hidden');
+          actionsContainer.classList.remove('hidden');
           gameInfo.textContent = 'Phase Finale';
           roundInstruction.textContent = '';
           renderPyramid();
@@ -867,6 +892,7 @@
           table.classList.add('hidden');
           pyramidArea.classList.add('hidden');
           actionsContainer.innerHTML = '';
+          actionsContainer.classList.add('hidden');
           messageArea.classList.add('hidden');
           currentPlayerHandArea.classList.add('hidden');
           gameInfo.textContent = 'Classement Final';
@@ -876,7 +902,7 @@
         }
       }
 
-      // --- ÉCOUTEURS D'ÉVÉNEMENTS ---
+      // --- EVENT LISTENERS ---
       addPlayerBtn.addEventListener('click', addPlayer);
       playerNameInput.addEventListener('keyup', (e) => {
         if (e.key === 'Enter') addPlayer();
@@ -885,7 +911,7 @@
       nextPyramidCardBtn.addEventListener('click', revealNextPyramidCard);
       replayBtn.addEventListener('click', resetGame);
 
-      // Initialisation
+      // --- INITIALIZATION ---
       loadPlayersFromSession();
       render();
     </script>
