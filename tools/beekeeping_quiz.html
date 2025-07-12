@@ -16,23 +16,59 @@
         font-family: 'Poppins', sans-serif;
         background-color: #1f2937; /* bg-gray-800 */
       }
+      /* --- CARD STYLES --- */
+      /* Default SMALL card styles (for hands and pyramid) */
       .card {
         width: 64px;
-        height: 96px;
+        height: 76px;
         border-radius: 8px;
         background-color: white;
         border: 2px solid #4b5563;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: center;
-        padding: 4px;
-        font-size: 20px;
+        padding: 6px;
+        font-size: 22px;
         font-weight: bold;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         position: relative;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        line-height: 1;
+        flex-shrink: 0; /* Prevent cards from shrinking in flex containers */
       }
+      .card::after {
+        position: absolute;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 40px;
+        line-height: 1;
+      }
+      .card-back {
+        background: linear-gradient(135deg, #4b5563 25%, transparent 25%) -32px 0,
+          linear-gradient(225deg, #6b7280 25%, transparent 25%) -32px 0,
+          linear-gradient(315deg, #4b5563 25%, transparent 25%),
+          linear-gradient(45deg, #6b7280 25%, transparent 25%);
+        background-size: 64px 64px;
+        background-color: #374151;
+      }
+
+      /* LARGE card modifier (for the main drawn card) */
+      .card-lg {
+        width: 96px;
+        height: 114px;
+        padding: 8px;
+        font-size: 32px;
+      }
+      .card-lg::after {
+        bottom: 10px;
+        font-size: 60px;
+      }
+      .card-back.card-lg {
+        background: linear-gradient(135deg, #4b5563 25%, transparent 25%) -48px 0,
+          linear-gradient(225deg, #6b7280 25%, transparent 25%) -48px 0,
+          linear-gradient(315deg, #4b5563 25%, transparent 25%),
+          linear-gradient(45deg, #6b7280 25%, transparent 25%);
+        background-size: 96px 96px;
+      }
+
       .card.red {
         color: #ef4444;
         border-color: #ef4444;
@@ -41,44 +77,20 @@
         color: #111827;
         border-color: #111827;
       }
-      .card::before,
-      .card::after {
-        position: absolute;
-        font-size: 14px;
-      }
       .card::before {
-        top: 4px;
-        left: 6px;
+        display: none;
       }
-      .card::after {
-        bottom: 4px;
-        right: 6px;
-        transform: rotate(180deg);
-      }
-      .card.hearts::before,
       .card.hearts::after {
         content: '♥';
       }
-      .card.diamonds::before,
       .card.diamonds::after {
         content: '♦';
       }
-      .card.clubs::before,
       .card.clubs::after {
         content: '♣';
       }
-      .card.spades::before,
       .card.spades::after {
         content: '♠';
-      }
-
-      .card-back {
-        background: linear-gradient(135deg, #4b5563 25%, transparent 25%) -32px 0,
-          linear-gradient(225deg, #6b7280 25%, transparent 25%) -32px 0,
-          linear-gradient(315deg, #4b5563 25%, transparent 25%),
-          linear-gradient(45deg, #6b7280 25%, transparent 25%);
-        background-size: 64px 64px;
-        background-color: #374151;
       }
 
       @keyframes card-reveal {
@@ -131,20 +143,20 @@
               type="text"
               id="player-name-input"
               placeholder="Nom du joueur"
-              class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-lg"
+              class="flex-grow bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-lg disabled:cursor-not-allowed"
             />
             <button
               id="add-player-btn"
-              class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-5 rounded-lg transition-colors text-lg"
+              class="bg-yellow-500 hover:bg-yellow-600 text-gray-900 font-bold py-3 px-5 rounded-lg transition-colors text-lg disabled:bg-gray-500 disabled:cursor-not-allowed"
             >
               Ajouter
             </button>
           </div>
-          <div id="player-list" class="mb-6 text-left">
-            <h3 class="text-xl mb-2 border-b border-gray-600 pb-1">
+          <div id="player-list" class="mb-6 text-left min-h-[60px]">
+            <h3 class="text-xl mb-3 border-b border-gray-600 pb-2">
               Joueurs :
             </h3>
-            <ul id="players-ul" class="list-disc list-inside space-y-1"></ul>
+            <div id="players-container" class="flex flex-wrap gap-2"></div>
           </div>
           <button
             id="start-game-btn"
@@ -163,29 +175,18 @@
             id="game-info"
             class="text-2xl sm:text-3xl font-bold text-yellow-400"
           ></h2>
-          <p
-            id="round-instruction"
-            class="text-base sm:text-lg text-gray-300 mt-1"
-          ></p>
         </div>
 
+        <!-- Plateau de jeu -->
         <div
           id="table"
-          class="flex justify-center items-center gap-4 sm:gap-8 mb-4 h-32 sm:h-48"
+          class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl p-4 flex flex-col items-center gap-4 mb-4 shadow-lg"
         >
-          <div class="text-center">
-            <p class="mb-1 text-sm">Pioche</p>
-            <div id="deck" class="card card-back"></div>
-          </div>
-          <div class="text-center">
-            <p class="mb-1 text-sm">Carte Tirée</p>
-            <div
-              id="drawn-card-placeholder"
-              class="card bg-gray-700 flex items-center justify-center"
-            >
-              <span class="text-gray-400 text-3xl">?</span>
-            </div>
-          </div>
+          <p
+            id="round-instruction"
+            class="text-2xl sm:text-3xl font-bold text-yellow-300 text-center h-16 flex items-center"
+          ></p>
+          <div id="drawn-card-placeholder" class="card card-back card-lg"></div>
         </div>
 
         <div id="pyramid-area" class="hidden text-center my-4">
@@ -233,7 +234,7 @@
       const gameScreen = document.getElementById('game-screen');
       const playerNameInput = document.getElementById('player-name-input');
       const addPlayerBtn = document.getElementById('add-player-btn');
-      const playersUl = document.getElementById('players-ul');
+      const playersContainer = document.getElementById('players-container');
       const startGameBtn = document.getElementById('start-game-btn');
       const gameInfo = document.getElementById('game-info');
       const roundInstruction = document.getElementById('round-instruction');
@@ -268,29 +269,16 @@
 
       // --- CONSTANTES DU JEU ---
       const SUITS = ['hearts', 'diamonds', 'clubs', 'spades'];
-      const RANKS = [
-        'A',
-        '2',
-        '3',
-        '4',
-        '5',
-        '6',
-        '7',
-        '8',
-        '9',
-        '10',
-        'J',
-        'Q',
-        'K',
-      ];
+      const RANKS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
       const ROUND_INSTRUCTIONS = {
-        1: 'Devinez la couleur.',
+        1: 'Devinez la couleur',
         2: 'Plus haut, plus bas, ou égalité ?',
-        3: 'Intérieur ou extérieur ?',
-        4: 'Devinez le symbole.',
+        3: 'Intérieur, extérieur, ou égalité ?',
+        4: 'Devinez le symbole',
         5: 'La valeur est-elle déjà sur la table ?',
       };
       const PLAYERS_STORAGE_KEY = 'quizApicolePlayers';
+      const MAX_PLAYERS = 6;
 
       // --- LOGIQUE DU JEU ---
       function savePlayersToSession() {
@@ -319,7 +307,7 @@
             deck.push({
               suit,
               rank: RANKS[i],
-              value: i + 1,
+              value: i, // Value is now 0-10
               color: suit === 'hearts' || suit === 'diamonds' ? 'red' : 'black',
             });
           }
@@ -343,7 +331,7 @@
 
       function addPlayer() {
         const name = playerNameInput.value.trim();
-        if (name && gameState.players.length < 10) {
+        if (name && gameState.players.length < MAX_PLAYERS) {
           gameState.players.push({
             name,
             hand: [],
@@ -355,6 +343,12 @@
           render();
         }
         playerNameInput.focus();
+      }
+
+      function removePlayer(index) {
+        gameState.players.splice(index, 1);
+        savePlayersToSession();
+        render();
       }
 
       function startGame() {
@@ -405,17 +399,29 @@
               card2 = player.hand[1];
             const minVal = Math.min(card1.value, card2.value),
               maxVal = Math.max(card1.value, card2.value);
-            if (minVal === maxVal) {
-              message = `Vos cartes sont identiques. Buvez ${sips} gorgée.`;
-              result = false;
-            } else {
+
+            if (choice === 'equal') {
+              sips = 3;
               result =
-                choice === 'inside'
-                  ? drawnCard.value > minVal && drawnCard.value < maxVal
-                  : drawnCard.value < minVal || drawnCard.value > maxVal;
+                drawnCard.value === card1.value ||
+                drawnCard.value === card2.value;
               message = result
-                ? `Gagné ! Donnez ${sips} gorgée.`
-                : `Perdu ! Buvez ${sips} gorgée.`;
+                ? `ÉGALITÉ ! Donnez ${sips} gorgées !`
+                : `Raté ! Buvez ${sips} gorgées.`;
+            } else {
+              sips = 1;
+              if (minVal === maxVal) {
+                message = `Poteaux ! Impossible de parier "Intérieur" ou "Extérieur". Buvez ${sips} gorgée.`;
+                result = false;
+              } else {
+                result =
+                  choice === 'inside'
+                    ? drawnCard.value > minVal && drawnCard.value < maxVal
+                    : drawnCard.value < minVal || drawnCard.value > maxVal;
+                message = result
+                  ? `Gagné ! Donnez ${sips} gorgée.`
+                  : `Perdu ! Buvez ${sips} gorgée.`;
+              }
             }
             break;
           case 4:
@@ -442,7 +448,11 @@
         player.hand.push(drawnCard);
         displayMessage(message, result);
         renderDrawnCard(drawnCard);
+
         actionsContainer.innerHTML = '';
+        actionsContainer.className =
+          'flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 min-h-[50px] w-full max-w-md mx-auto';
+
         const continueBtn = document.createElement('button');
         continueBtn.textContent = 'Tour Suivant';
         continueBtn.className =
@@ -453,10 +463,8 @@
 
       function nextTurn() {
         messageArea.classList.add('hidden');
-        drawnCardPlaceholder.innerHTML =
-          '<span class="text-gray-400 text-3xl">?</span>';
-        drawnCardPlaceholder.className =
-          'card bg-gray-700 flex items-center justify-center';
+        drawnCardPlaceholder.innerHTML = '';
+        drawnCardPlaceholder.className = 'card card-back card-lg';
         gameState.currentPlayerIndex++;
         if (gameState.currentPlayerIndex >= gameState.players.length) {
           gameState.currentPlayerIndex = 0;
@@ -488,7 +496,7 @@
           gameState.pyramidCards[gameState.revealedPyramidIndex];
         if (!revealedCard) return;
         let messages = [];
-        const sips = revealedCard.value,
+        const sips = Math.ceil(revealedCard.value / 2),
           sipsText = sips > 1 ? 'gorgées' : 'gorgée';
         gameState.players.forEach((player) => {
           if (player.hand.some((card) => card.rank === revealedCard.rank)) {
@@ -571,9 +579,10 @@
       // --- FONCTIONS DE RENDU ---
       function renderDrawnCard(card) {
         const cardEl = createCardElement(card);
+        cardEl.classList.add('card-lg'); // Make the drawn card large
         cardEl.classList.add('card-reveal-animation');
         drawnCardPlaceholder.innerHTML = '';
-        drawnCardPlaceholder.className = '';
+        drawnCardPlaceholder.className = ''; // Let the appended child define the appearance
         drawnCardPlaceholder.appendChild(cardEl);
       }
 
@@ -584,7 +593,7 @@
 
         if (isSuitRound) {
           actionsContainer.className =
-            'flex flex-row justify-center flex-wrap gap-2 mb-4 min-h-[50px] w-full max-w-md mx-auto';
+            'grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4 min-h-[50px] w-full max-w-md mx-auto';
         } else {
           actionsContainer.className =
             'flex flex-col sm:flex-row justify-center flex-wrap gap-3 mb-4 min-h-[50px] w-full max-w-md mx-auto';
@@ -636,6 +645,11 @@
                 choice: 'outside',
                 class: 'bg-pink-600 hover:bg-pink-700',
               },
+              {
+                text: 'Égalité',
+                choice: 'equal',
+                class: 'bg-yellow-500 hover:bg-yellow-600 text-black',
+              },
             ];
             break;
           case 4:
@@ -683,7 +697,7 @@
           button.innerHTML = btnInfo.text;
           let buttonBaseClasses = 'font-bold py-3 rounded-lg transition-colors';
           if (isSuitRound) {
-            button.className = `${buttonBaseClasses} flex-1 px-2 text-2xl ${btnInfo.class}`;
+            button.className = `${buttonBaseClasses} flex-1 px-2 text-4xl ${btnInfo.class}`;
           } else {
             button.className = `${buttonBaseClasses} w-full px-6 text-lg ${btnInfo.class}`;
           }
@@ -806,10 +820,30 @@
         setupScreen.classList.toggle('hidden', gameState.gamePhase !== 'setup');
         gameScreen.classList.toggle('hidden', gameState.gamePhase === 'setup');
         replayBtn.classList.add('hidden');
+
         if (gameState.gamePhase === 'setup') {
-          playersUl.innerHTML = gameState.players
-            .map((p) => `<li class="text-lg">${p.name}</li>`)
+          playersContainer.innerHTML = gameState.players
+            .map(
+              (player, index) => `
+            <div class="flex items-center bg-gray-700 text-white text-base font-medium px-4 py-2 rounded-full transition-all duration-300">
+              <span class="mr-2">${player.name}</span>
+              <button class="text-gray-400 hover:text-white focus:outline-none" onclick="removePlayer(${index})" title="Supprimer ${player.name}">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+              </button>
+            </div>
+          `
+            )
             .join('');
+
+          const atMaxPlayers = gameState.players.length >= MAX_PLAYERS;
+          playerNameInput.disabled = atMaxPlayers;
+          addPlayerBtn.disabled = atMaxPlayers;
+          if (atMaxPlayers) {
+            playerNameInput.placeholder = 'Maximum de 6 joueurs atteint';
+          } else {
+            playerNameInput.placeholder = 'Nom du joueur';
+          }
+
           startGameBtn.disabled = gameState.players.length < 1;
         } else if (gameState.gamePhase === 'playing') {
           table.classList.remove('hidden');
