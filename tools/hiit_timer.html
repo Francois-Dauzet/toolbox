@@ -19,6 +19,7 @@
         margin: 0;
       }
       input[type='number'] {
+        /* Correction pour Firefox */
         -moz-appearance: textfield;
       }
     </style>
@@ -125,7 +126,7 @@
               class="w-full bg-gray-700 border-gray-600 rounded-lg text-white p-3 focus:ring-cyan-500 focus:border-cyan-500"
             />
           </div>
-          <!-- Repos / Tour (Nouveau) -->
+          <!-- Repos / Tour -->
           <div>
             <label
               for="round-rest-time"
@@ -148,13 +149,13 @@
           id="phase-name"
           class="text-4xl md:text-5xl font-bold mb-2 text-cyan-400 transition-all duration-300"
         >
-          Renforcement
+          Cardio
         </h2>
         <div
           id="timer-display"
           class="text-8xl md:text-9xl font-black text-white my-4 transition-all duration-300"
         >
-          1:00
+          0:30
         </div>
         <div
           id="progress-info"
@@ -241,10 +242,10 @@
         <div class="grid grid-cols-2 gap-4 mb-8">
           <div class="bg-gray-700 p-4 rounded-lg">
             <div class="text-xs font-medium text-gray-400 uppercase">
-              Renforcement
+              Cardio
             </div>
             <div
-              id="summary-total-strength"
+              id="summary-total-cardio"
               class="text-2xl font-bold text-white mt-1"
             >
               ...
@@ -252,10 +253,10 @@
           </div>
           <div class="bg-gray-700 p-4 rounded-lg">
             <div class="text-xs font-medium text-gray-400 uppercase">
-              Cardio
+              Renforcement
             </div>
             <div
-              id="summary-total-cardio"
+              id="summary-total-strength"
               class="text-2xl font-bold text-white mt-1"
             >
               ...
@@ -294,11 +295,26 @@
       </div>
     </div>
 
+    <!-- NOUVEAU: Vidéo invisible pour empêcher la mise en veille -->
+    <video
+      id="wakeLockVideo"
+      loop
+      playsinline
+      style="display: none"
+      aria-hidden="true"
+    >
+      <!-- Une minuscule vidéo silencieuse encodée en base64 -->
+      <source
+        src="data:video/mp4;base64,AAAAHGZ0eXBNNFYgAAACADEAAAAAYXZjMQAAAAAAAABhdmMxAAAAAAAAAABIAAAAAAAAHgAAAAAFAAAABABVf//EAAQAAf//EAAQAAAAAAxhZWNkYgAAAAAABvBvYWR0cwAAAAAAAAABAAAAAQAAAAEAAAAQAAAoAAAABWRsc3QAAAAAAAAAAAEAAAABAAAADAAAAQUAAQAAAAEBBUgBwAADAAEAAAAKAAAAYW1kAAAAAAAAAAAAAAABAAAADAAAAQUAAQAAAAMBAUgBwAADAAEAAAAKAAAAFG12aGQAAAAA8K8BwPCvAcB1h+7LAAABAAD6AAABgAAAAAAAAAAAAAAAANgB4AAAAFAAVVlgQVXZbARVXZbAAVYALAAD/AAAAGAAAAAABAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAABXYXZlAAAAAAAAAAABAAAAJHN0YmxfYXZjMQAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAoYXZjQwH0AAP/hAFkAB9oADwEAcT4sH/wAgwAEABGjBGY/LwwAAAADAQABgASwCAAAAAQedGFiaWkAAAAAABEAAAAwAAAADAAAAGJzZGt0AAAAAAAAAAABAAAAEkZpYmUgVmlkZW8gRW5jb2RlcgAAABtpb3ZlX2NkY3MAAAAAAAABAABoX2FhYwAAAAAAAQAAAAAAAAAAAAEBBAAAAGVzZHMAAAAAA4CAAIAAgAACAAtbBNEuAABwAAAAAAAAAAAAAAAAAAAAAAABAANyAAAAAwA3IAMAAHgAcgAAAAAAAAAAAAAAABppc3RtAAAAAAAAAAAAAAAAAEBtb292AAAAIG1vdmYAAAAoZWF0cwAAAAAAAAABAAAAAgAAAAEAAAAwAAAABWRsc3QAAAAAAAAAAAEAAAABAAAADAAAAQUAAQAAAAEBBUgBwAADAAEAAAAKAAAAHW1kYnIAAAAAAAAAAAAAAQAAAAwAAAAFQQEAAAAAAQFIAcAAAAMAAQAAAAoAAAAeaWR4YQAAAAAAAAABAAAAAgAAAAEAAAAwAAAABWRsc3QAAAAAAAAAAAEAAAABAAAADAAAAQUAAQAAAAEBBUgBwAADAAEAAAAKAAAAHG1lcmEAAAAAABJtZHRhAAAAAAAAACFoZGxyAAAAAAAAAABtZGlyYXBwbAAAAAAAAAAAAAAAAC1pbHN0AAAAJql0b28AAAAcZGF0YQAAAAEAAAAATGF2ZjU3LjgyLjEwMAAAABhlbGN0AAAAAAAAAAAAAAAAAQAAAAgAAABkdXJtAAAAAgAAAAAABAAAAA=="
+        type="video/mp4"
+      />
+    </video>
+
     <script>
       // Références DOM
       const settingsContainer = document.getElementById('settings-container');
       const timerContainer = document.getElementById('timer-container');
-      const summaryContainer = document.getElementById('summary-container'); // Nouveau
+      const summaryContainer = document.getElementById('summary-container');
 
       const strengthInput = document.getElementById('strength-time');
       const cardioInput = document.getElementById('cardio-time');
@@ -313,7 +329,7 @@
         setsInput,
         roundsInput,
         roundRestInput,
-      ]; // Nouveau
+      ];
 
       const phaseNameDisplay = document.getElementById('phase-name');
       const timerDisplay = document.getElementById('timer-display');
@@ -322,7 +338,10 @@
       const startButton = document.getElementById('start-button');
       const pauseButton = document.getElementById('pause-button');
       const resetButton = document.getElementById('reset-button');
-      const returnButton = document.getElementById('return-button'); // Nouveau
+      const returnButton = document.getElementById('return-button');
+
+      // NOUVEAU: Référence à la vidéo Wake Lock
+      const wakeLockVideo = document.getElementById('wakeLockVideo');
 
       // État du minuteur
       let timerInterval = null;
@@ -335,6 +354,7 @@
       let isRestingRound = false;
 
       let settings = {};
+      // Ordre modifié: Cardio -> Renforcement
       const phaseSequence = ['cardio', 'prep', 'strength', 'prep'];
       const phaseNames = {
         strength: 'Renforcement',
@@ -379,7 +399,6 @@
           rounds: parseInt(roundsInput.value) || 2,
           roundRest: parseInt(roundRestInput.value) || 45,
         };
-        // La sauvegarde se fait déjà via saveSettings() sur l'input
 
         isRunning = true;
         isPaused = false;
@@ -390,11 +409,18 @@
 
         settingsContainer.classList.add('hidden');
         timerContainer.classList.remove('hidden');
-        summaryContainer.classList.add('hidden'); // Cacher résumé
+        summaryContainer.classList.add('hidden');
         startButton.classList.add('hidden');
         pauseButton.classList.remove('hidden');
         pauseButton.textContent = 'Pause';
         resetButton.classList.remove('hidden');
+
+        // Lancer l'astuce Wake Lock
+        if (wakeLockVideo.paused) {
+          wakeLockVideo
+            .play()
+            .catch((e) => console.warn('Erreur lecture vidéo wake-lock:', e));
+        }
 
         startNextPhase();
       }
@@ -409,6 +435,11 @@
             'hover:bg-yellow-600',
             'hover:bg-green-600'
           );
+
+          // Mettre en pause l'astuce Wake Lock
+          if (!wakeLockVideo.paused) {
+            wakeLockVideo.pause();
+          }
         } else {
           pauseButton.textContent = 'Pause';
           pauseButton.classList.replace('bg-green-500', 'bg-yellow-500');
@@ -416,6 +447,14 @@
             'hover:bg-green-600',
             'hover:bg-yellow-600'
           );
+
+          // Reprendre l'astuce Wake Lock
+          if (wakeLockVideo.paused) {
+            wakeLockVideo
+              .play()
+              .catch((e) => console.warn('Erreur lecture vidéo wake-lock:', e));
+          }
+
           startTimer();
         }
       }
@@ -426,7 +465,13 @@
         isPaused = false;
         isRestingRound = false;
         synth.cancel();
-        showSettingsScreen(); // Utilise la nouvelle fonction
+
+        // Arrêter l'astuce Wake Lock
+        if (!wakeLockVideo.paused) {
+          wakeLockVideo.pause();
+        }
+
+        showSettingsScreen();
       }
 
       function startTimer() {
@@ -445,12 +490,10 @@
         } else {
           updateTimerDisplay();
 
-          // MODIFIÉ: Détermine la phase actuelle (incluant repos)
           const currentPhase = isRestingRound
             ? 'roundRest'
             : phaseSequence[currentPhaseIndex];
 
-          // Gère la parole pour la phase de préparation
           if (currentPhase === 'prep') {
             if (timeLeft > 0) {
               speak(timeLeft.toString());
@@ -458,14 +501,12 @@
               speak("C'est parti !");
             }
           }
-          // REQ 2 (MODIFIÉ): Avertissement "Attention" pour renfo/cardio
+          // Alerte modifiée: "Attention au changement"
           else if (currentPhase === 'strength' || currentPhase === 'cardio') {
             if (timeLeft === 3) {
               speak('Attention au changement');
             }
-          }
-          // REQ 2 (CONSERVÉ): Décompte pour le repos de tour
-          else if (currentPhase === 'roundRest') {
+          } else if (currentPhase === 'roundRest') {
             if (timeLeft === 3 || timeLeft === 2 || timeLeft === 1) {
               speak(timeLeft.toString());
             }
@@ -479,8 +520,8 @@
 
         const phaseName = phaseSequence[currentPhaseIndex];
 
-        if (phaseName === 'strength') timeLeft = settings.strength;
-        else if (phaseName === 'cardio') timeLeft = settings.cardio;
+        if (phaseName === 'cardio') timeLeft = settings.cardio;
+        else if (phaseName === 'strength') timeLeft = settings.strength;
         else if (phaseName === 'prep') timeLeft = settings.prep;
 
         updateTimerDisplay();
@@ -501,20 +542,17 @@
         startTimer();
       }
 
-      // --- MODIFIÉ: Logique d'avancement ---
       function advanceToNextPhase() {
-        // Cas 1: On vient de finir un repos de tour
         if (isRestingRound) {
           isRestingRound = false;
-          currentPhaseIndex = 0; // S'assurer de repartir à 'strength'
+          currentPhaseIndex = 0;
           startNextPhase();
           return;
         }
 
-        // Cas 2: On vient de finir une phase normale
         const justFinishedPhaseName = phaseSequence[currentPhaseIndex];
 
-        // REQ: Fin du STRENGTH (dernier exo) du DERNIER set du DERNIER tour
+        // Fin du RENFORCEMENT du DERNIER set du DERNIER tour
         if (
           justFinishedPhaseName === 'strength' &&
           currentSet === settings.sets &&
@@ -524,42 +562,41 @@
           return;
         }
 
-        // REQ 1 (NOUVEAU): Fin du STRENGTH (dernier exo) du DERNIER set (mais pas dernier tour)
-        // On gère ça ICI, avant d'incrémenter currentPhaseIndex
+        // Fin du RENFORCEMENT du DERNIER set (mais pas dernier tour)
         if (
           justFinishedPhaseName === 'strength' &&
           currentSet === settings.sets
         ) {
-          // C'est la fin d'un tour. On saute la 'prep'
           currentSet = 1;
           currentRound++;
-          currentPhaseIndex = 0; // Prêt pour 'strength'
+          currentPhaseIndex = 0;
 
           if (settings.roundRest > 0) {
-            startRoundRest(); // Lance le repos
+            startRoundRest();
             return;
           }
-          // S'il n'y a pas de repos, on enchaîne direct
           startNextPhase();
           return;
         }
 
-        // Progression normale (ni fin de tour, ni fin de workout)
         currentPhaseIndex++;
 
         if (currentPhaseIndex >= phaseSequence.length) {
-          // Fin d'une série (après la 2e 'prep')
           currentPhaseIndex = 0;
           currentSet++;
         }
 
-        startNextPhase(); // Prochaine phase normale
+        startNextPhase();
       }
 
       function finishWorkout() {
         speak('Entraînement terminé. Bravo !');
 
-        // Arrêter le minuteur
+        // Arrêter l'astuce Wake Lock
+        if (!wakeLockVideo.paused) {
+          wakeLockVideo.pause();
+        }
+
         clearInterval(timerInterval);
         isRunning = false;
         isPaused = false;
@@ -570,7 +607,7 @@
         const totalStrength = settings.strength * totalSets;
         const totalCardio = settings.cardio * totalSets;
 
-        // 2 preps par set (S-P-C-P), moins 1 prep par tour (car on saute la dernière)
+        // 2 preps par set (C-P-S-P), moins 1 prep par tour (car on saute la dernière)
         const totalPrep = settings.prep * (totalSets * 2 - settings.rounds);
 
         // 1 repos par tour, SAUF le dernier
@@ -587,10 +624,10 @@
           formatTime(totalWork);
         document.getElementById('summary-total-rest').textContent =
           formatTime(totalRest);
-        document.getElementById('summary-total-strength').textContent =
-          formatTime(totalStrength);
         document.getElementById('summary-total-cardio').textContent =
           formatTime(totalCardio);
+        document.getElementById('summary-total-strength').textContent =
+          formatTime(totalStrength);
         document.getElementById('summary-total-prep').textContent =
           formatTime(totalPrep);
         document.getElementById('summary-total-round-rest').textContent =
@@ -605,7 +642,6 @@
 
       // --- Fonctions utilitaires ---
 
-      // NOUVEAU: Afficher l'écran des réglages
       function showSettingsScreen() {
         settingsContainer.classList.remove('hidden');
         timerContainer.classList.add('hidden');
@@ -616,7 +652,6 @@
         resetButton.classList.add('hidden');
       }
 
-      // NOUVEAU: Sauvegarder les réglages
       function saveSettings() {
         const currentSettings = {
           strength: strengthInput.value,
@@ -632,7 +667,6 @@
         );
       }
 
-      // NOUVEAU: Charger les réglages
       function loadSettings() {
         const savedSettings = sessionStorage.getItem('workoutSettings');
         if (savedSettings) {
@@ -679,14 +713,12 @@
       startButton.addEventListener('click', startWorkout);
       pauseButton.addEventListener('click', togglePause);
       resetButton.addEventListener('click', resetWorkout);
-      returnButton.addEventListener('click', resetWorkout); // RE-Nouveau: Bouton de retour
+      returnButton.addEventListener('click', resetWorkout);
 
-      // NOUVEAU: Sauvegarde auto des réglages
       allSettingsInputs.forEach((input) => {
         input.addEventListener('input', saveSettings);
       });
 
-      // NOUVEAU: Chargement initial
       loadSettings();
     </script>
   </body>
