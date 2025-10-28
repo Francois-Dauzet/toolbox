@@ -295,7 +295,7 @@
       </div>
     </div>
 
-    <!-- NOUVEAU: Vidéo invisible pour empêcher la mise en veille -->
+    <!-- Vidéo invisible (Fallback pour Safari / iOS) -->
     <video
       id="wakeLockVideo"
       loop
@@ -340,8 +340,55 @@
       const resetButton = document.getElementById('reset-button');
       const returnButton = document.getElementById('return-button');
 
-      // NOUVEAU: Référence à la vidéo Wake Lock
       const wakeLockVideo = document.getElementById('wakeLockVideo');
+
+      // --- Wake Lock (Anti-veille) ---
+      let wakeLock = null;
+
+      async function requestWakeLock() {
+        // 1. Essayer l'API Wake Lock moderne
+        if ('wakeLock' in navigator) {
+          try {
+            wakeLock = await navigator.wakeLock.request('screen');
+            // console.log('Wake Lock (API) activé.');
+          } catch (err) {
+            // console.warn('Echec API Wake Lock:', err.name, err.message);
+            // Si l'API échoue, on tente la vidéo en fallback
+            playVideoWakeLock();
+          }
+        } else {
+          // 2. Fallback: API non supportée (Safari), on utilise la vidéo
+          playVideoWakeLock();
+        }
+      }
+
+      function playVideoWakeLock() {
+        if (wakeLockVideo.paused) {
+          wakeLockVideo
+            .play()
+            .catch((e) =>
+              console.warn('Erreur lecture vidéo wake-lock (fallback):', e)
+            );
+          // console.log('Wake Lock (Vidéo Fallback) activé.');
+        }
+      }
+
+      function releaseWakeLock() {
+        // 1. Relâcher l'API Wake Lock
+        if (wakeLock) {
+          wakeLock.release().then(() => {
+            wakeLock = null;
+            // console.log('Wake Lock (API) relâché.');
+          });
+        }
+
+        // 2. Arrêter la vidéo fallback
+        if (!wakeLockVideo.paused) {
+          wakeLockVideo.pause();
+          // console.log('Wake Lock (Vidéo Fallback) arrêté.');
+        }
+      }
+      // --- Fin Wake Lock ---
 
       // État du minuteur
       let timerInterval = null;
@@ -354,7 +401,6 @@
       let isRestingRound = false;
 
       let settings = {};
-      // Ordre modifié: Cardio -> Renforcement
       const phaseSequence = ['cardio', 'prep', 'strength', 'prep'];
       const phaseNames = {
         strength: 'Renforcement',
@@ -415,12 +461,8 @@
         pauseButton.textContent = 'Pause';
         resetButton.classList.remove('hidden');
 
-        // Lancer l'astuce Wake Lock
-        if (wakeLockVideo.paused) {
-          wakeLockVideo
-            .play()
-            .catch((e) => console.warn('Erreur lecture vidéo wake-lock:', e));
-        }
+        // Lancer l'anti-veille
+        requestWakeLock();
 
         startNextPhase();
       }
@@ -436,10 +478,8 @@
             'hover:bg-green-600'
           );
 
-          // Mettre en pause l'astuce Wake Lock
-          if (!wakeLockVideo.paused) {
-            wakeLockVideo.pause();
-          }
+          // Mettre en pause l'anti-veille
+          releaseWakeLock();
         } else {
           pauseButton.textContent = 'Pause';
           pauseButton.classList.replace('bg-green-500', 'bg-yellow-500');
@@ -448,12 +488,8 @@
             'hover:bg-yellow-600'
           );
 
-          // Reprendre l'astuce Wake Lock
-          if (wakeLockVideo.paused) {
-            wakeLockVideo
-              .play()
-              .catch((e) => console.warn('Erreur lecture vidéo wake-lock:', e));
-          }
+          // Reprendre l'anti-veille
+          requestWakeLock();
 
           startTimer();
         }
@@ -466,10 +502,8 @@
         isRestingRound = false;
         synth.cancel();
 
-        // Arrêter l'astuce Wake Lock
-        if (!wakeLockVideo.paused) {
-          wakeLockVideo.pause();
-        }
+        // Arrêter l'anti-veille
+        releaseWakeLock();
 
         showSettingsScreen();
       }
@@ -500,9 +534,7 @@
             } else if (timeLeft === 0) {
               speak("C'est parti !");
             }
-          }
-          // Alerte modifiée: "Attention au changement"
-          else if (currentPhase === 'strength' || currentPhase === 'cardio') {
+          } else if (currentPhase === 'strength' || currentPhase === 'cardio') {
             if (timeLeft === 3) {
               speak('Attention au changement');
             }
@@ -592,10 +624,8 @@
       function finishWorkout() {
         speak('Entraînement terminé. Bravo !');
 
-        // Arrêter l'astuce Wake Lock
-        if (!wakeLockVideo.paused) {
-          wakeLockVideo.pause();
-        }
+        // Arrêter l'anti-veille
+        releaseWakeLock();
 
         clearInterval(timerInterval);
         isRunning = false;
@@ -717,6 +747,13 @@
 
       allSettingsInputs.forEach((input) => {
         input.addEventListener('input', saveSettings);
+      });
+
+      // Re-verrouiller si l'utilisateur quitte et revient sur la page
+      document.addEventListener('visibilitychange', () => {
+        if (wakeLock && document.visibilityState === 'visible') {
+          requestWakeLock();
+        }
       });
 
       loadSettings();
