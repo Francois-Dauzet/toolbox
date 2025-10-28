@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Minuteur HIIT</title>
+    <!-- Chargement de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Police Inter */
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Masquer les flèches des champs numériques */
+      input[type='number']::-webkit-inner-spin-button,
+      input[type='number']::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type='number'] {
+        -moz-appearance: textfield;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-900 text-white min-h-screen flex items-center justify-center p-4"
+  >
+    <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-lg">
+      <!-- Bouton Retour à l'accueil -->
+      <a
+        href="/"
+        class="absolute top-6 left-6 text-gray-500 hover:text-white transition-colors"
+        title="Retour à l'accueil"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-7 w-7"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M11 17l-5-5m0 0l5-5m-5 5h12"
+          />
+        </svg>
+      </a>
+      <h1 class="text-3xl font-bold text-center mb-6 text-cyan-400">
+        Minuteur HIIT
+      </h1>
+
+      <!-- Conteneur des réglages -->
+      <div id="settings-container">
+        <div class="grid grid-cols-2 gap-4 mb-6">
+          <!-- Cardio -->
+          <div>
+            <label
+              for="cardio-time"
+              class="block text-sm font-medium text-gray-300 mb-1"
+              >Cardio (s)</label
+            >
+            <input
+              type="number"
+              id="cardio-time"
+              value="30"
+              class="w-full bg-gray-700 border-gray-600 rounded-lg text-white p-3 focus:ring-cyan-500 focus:border-cyan-500"
+            />
+          </div>
+          <!-- Renforcement -->
+          <div>
+            <label
+              for="strength-time"
+              class="block text-sm font-medium text-gray-300 mb-1"
+              >Renforcement (s)</label
+            >
+            <input
+              type="number"
+              id="strength-time"
+              value="60"
+              class="w-full bg-gray-700 border-gray-600 rounded-lg text-white p-3 focus:ring-cyan-500 focus:border-cyan-500"
+            />
+          </div>
+          <!-- Préparation -->
+          <div>
+            <label
+              for="prep-time"
+              class="block text-sm font-medium text-gray-300 mb-1"
+              >Préparation (s)</label
+            >
+            <input
+              type="number"
+              id="prep-time"
+              value="3"
+              class="w-full bg-gray-700 border-gray-600 rounded-lg text-white p-3 focus:ring-cyan-500 focus:border-cyan-500"
+            />
+          </div>
+          <!-- Séries / Tour -->
+          <div>
+            <label
+              for="sets-per-round"
+              class="block text-sm font-medium text-gray-300 mb-1"
+              >Séries / Tour</label
+            >
+            <input
+              type="number"
+              id="sets-per-round"
+              value="4"
+              class="w-full bg-gray-700 border-gray-600 rounded-lg text-white p-3 focus:ring-cyan-500 focus:border-cyan-500"
+            />
+          </div>
+          <!-- Total Tours -->
+          <div>
+            <label
+              for="total-rounds"
+              class="block text-sm font-medium text-gray-300 mb-1"
+              >Total Tours</label
+            >
+            <input
+              type="number"
+              id="total-rounds"
+              value="2"
+              class="w-full bg-gray-700 border-gray-600 rounded-lg text-white p-3 focus:ring-cyan-500 focus:border-cyan-500"
+            />
+          </div>
+          <!-- Repos / Tour (Nouveau) -->
+          <div>
+            <label
+              for="round-rest-time"
+              class="block text-sm font-medium text-gray-300 mb-1"
+              >Repos / Tour (s)</label
+            >
+            <input
+              type="number"
+              id="round-rest-time"
+              value="45"
+              class="w-full bg-gray-700 border-gray-600 rounded-lg text-white p-3 focus:ring-cyan-500 focus:border-cyan-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Conteneur du minuteur (caché par défaut) -->
+      <div id="timer-container" class="hidden text-center">
+        <h2
+          id="phase-name"
+          class="text-4xl md:text-5xl font-bold mb-2 text-cyan-400 transition-all duration-300"
+        >
+          Renforcement
+        </h2>
+        <div
+          id="timer-display"
+          class="text-8xl md:text-9xl font-black text-white my-4 transition-all duration-300"
+        >
+          1:00
+        </div>
+        <div
+          id="progress-info"
+          class="text-2xl md:text-3xl text-gray-400 font-semibold"
+        >
+          Série: 1 / 4 | Tour: 1 / 2
+        </div>
+      </div>
+
+      <!-- Controles -->
+      <div class="mt-8 flex space-x-4">
+        <button
+          id="start-button"
+          class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50"
+        >
+          Démarrer
+        </button>
+        <button
+          id="pause-button"
+          class="hidden w-1/2 bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200"
+        >
+          Pause
+        </button>
+        <button
+          id="reset-button"
+          class="hidden w-1/2 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200"
+        >
+          Arrêter
+        </button>
+      </div>
+
+      <!-- Conteneur du résumé (caché par défaut) -->
+      <div id="summary-container" class="hidden text-center mt-6">
+        <h2 class="text-3xl font-bold mb-6 text-cyan-400">
+          Résumé de la Session
+        </h2>
+
+        <!-- Stats principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <!-- Temps Total -->
+          <div
+            class="bg-gray-700 p-5 rounded-lg col-span-1 md:col-span-2 shadow-lg"
+          >
+            <div class="text-sm font-medium text-gray-400 uppercase">
+              Temps Total (avec repos)
+            </div>
+            <div
+              id="summary-total-time"
+              class="text-4xl font-extrabold text-white mt-1"
+            >
+              ...
+            </div>
+          </div>
+
+          <!-- Travail Actif -->
+          <div class="bg-cyan-800/50 p-5 rounded-lg shadow-lg">
+            <div class="text-sm font-medium text-cyan-300 uppercase">
+              Travail Actif
+            </div>
+            <div
+              id="summary-total-work"
+              class="text-3xl font-bold text-white mt-1"
+            >
+              ...
+            </div>
+          </div>
+
+          <!-- Repos Total -->
+          <div class="bg-gray-700 p-5 rounded-lg shadow-lg">
+            <div class="text-sm font-medium text-gray-400 uppercase">
+              Repos Total
+            </div>
+            <div
+              id="summary-total-rest"
+              class="text-3xl font-bold text-white mt-1"
+            >
+              ...
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats détaillées -->
+        <h3 class="text-xl font-semibold mb-3 text-gray-300">Détails</h3>
+        <div class="grid grid-cols-2 gap-4 mb-8">
+          <div class="bg-gray-700 p-4 rounded-lg">
+            <div class="text-xs font-medium text-gray-400 uppercase">
+              Renforcement
+            </div>
+            <div
+              id="summary-total-strength"
+              class="text-2xl font-bold text-white mt-1"
+            >
+              ...
+            </div>
+          </div>
+          <div class="bg-gray-700 p-4 rounded-lg">
+            <div class="text-xs font-medium text-gray-400 uppercase">
+              Cardio
+            </div>
+            <div
+              id="summary-total-cardio"
+              class="text-2xl font-bold text-white mt-1"
+            >
+              ...
+            </div>
+          </div>
+          <div class="bg-gray-700 p-4 rounded-lg">
+            <div class="text-xs font-medium text-gray-400 uppercase">
+              Préparation
+            </div>
+            <div
+              id="summary-total-prep"
+              class="text-2xl font-bold text-white mt-1"
+            >
+              ...
+            </div>
+          </div>
+          <div class="bg-gray-700 p-4 rounded-lg">
+            <div class="text-xs font-medium text-gray-400 uppercase">
+              Repos / Tours
+            </div>
+            <div
+              id="summary-total-round-rest"
+              class="text-2xl font-bold text-white mt-1"
+            >
+              ...
+            </div>
+          </div>
+        </div>
+
+        <button
+          id="return-button"
+          class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50"
+        >
+          Nouvelle Session
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Références DOM
+      const settingsContainer = document.getElementById('settings-container');
+      const timerContainer = document.getElementById('timer-container');
+      const summaryContainer = document.getElementById('summary-container'); // Nouveau
+
+      const strengthInput = document.getElementById('strength-time');
+      const cardioInput = document.getElementById('cardio-time');
+      const prepInput = document.getElementById('prep-time');
+      const setsInput = document.getElementById('sets-per-round');
+      const roundsInput = document.getElementById('total-rounds');
+      const roundRestInput = document.getElementById('round-rest-time');
+      const allSettingsInputs = [
+        strengthInput,
+        cardioInput,
+        prepInput,
+        setsInput,
+        roundsInput,
+        roundRestInput,
+      ]; // Nouveau
+
+      const phaseNameDisplay = document.getElementById('phase-name');
+      const timerDisplay = document.getElementById('timer-display');
+      const progressInfo = document.getElementById('progress-info');
+
+      const startButton = document.getElementById('start-button');
+      const pauseButton = document.getElementById('pause-button');
+      const resetButton = document.getElementById('reset-button');
+      const returnButton = document.getElementById('return-button'); // Nouveau
+
+      // État du minuteur
+      let timerInterval = null;
+      let isRunning = false;
+      let isPaused = false;
+      let timeLeft = 0;
+      let currentPhaseIndex = 0;
+      let currentSet = 1;
+      let currentRound = 1;
+      let isRestingRound = false;
+
+      let settings = {};
+      const phaseSequence = ['cardio', 'prep', 'strength', 'prep'];
+      const phaseNames = {
+        strength: 'Renforcement',
+        prep: 'Préparation',
+        cardio: 'Cardio',
+        roundRest: 'Repos (Tour)',
+      };
+
+      // Synthèse vocale
+      const synth = window.speechSynthesis;
+      let voices = [];
+
+      function loadVoices() {
+        voices = synth.getVoices().filter((voice) => voice.lang === 'fr-FR');
+      }
+      loadVoices();
+      if (synth.onvoiceschanged !== undefined) {
+        synth.onvoiceschanged = loadVoices;
+      }
+
+      function speak(text) {
+        if (synth.speaking) {
+          synth.cancel();
+        }
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'fr-FR';
+        if (voices.length > 0) {
+          utter.voice = voices[0];
+        }
+        utter.rate = 1.1;
+        synth.speak(utter);
+      }
+
+      // --- Fonctions principales ---
+
+      function startWorkout() {
+        settings = {
+          strength: parseInt(strengthInput.value) || 60,
+          cardio: parseInt(cardioInput.value) || 30,
+          prep: parseInt(prepInput.value) || 3,
+          sets: parseInt(setsInput.value) || 4,
+          rounds: parseInt(roundsInput.value) || 2,
+          roundRest: parseInt(roundRestInput.value) || 45,
+        };
+        // La sauvegarde se fait déjà via saveSettings() sur l'input
+
+        isRunning = true;
+        isPaused = false;
+        currentSet = 1;
+        currentRound = 1;
+        currentPhaseIndex = 0;
+        isRestingRound = false;
+
+        settingsContainer.classList.add('hidden');
+        timerContainer.classList.remove('hidden');
+        summaryContainer.classList.add('hidden'); // Cacher résumé
+        startButton.classList.add('hidden');
+        pauseButton.classList.remove('hidden');
+        pauseButton.textContent = 'Pause';
+        resetButton.classList.remove('hidden');
+
+        startNextPhase();
+      }
+
+      function togglePause() {
+        isPaused = !isPaused;
+        if (isPaused) {
+          clearInterval(timerInterval);
+          pauseButton.textContent = 'Reprendre';
+          pauseButton.classList.replace('bg-yellow-500', 'bg-green-500');
+          pauseButton.classList.replace(
+            'hover:bg-yellow-600',
+            'hover:bg-green-600'
+          );
+        } else {
+          pauseButton.textContent = 'Pause';
+          pauseButton.classList.replace('bg-green-500', 'bg-yellow-500');
+          pauseButton.classList.replace(
+            'hover:bg-green-600',
+            'hover:bg-yellow-600'
+          );
+          startTimer();
+        }
+      }
+
+      function resetWorkout() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        isPaused = false;
+        isRestingRound = false;
+        synth.cancel();
+        showSettingsScreen(); // Utilise la nouvelle fonction
+      }
+
+      function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(tick, 1000);
+      }
+
+      function tick() {
+        if (isPaused || !isRunning) return;
+
+        timeLeft--;
+
+        if (timeLeft < 0) {
+          clearInterval(timerInterval);
+          advanceToNextPhase();
+        } else {
+          updateTimerDisplay();
+
+          // MODIFIÉ: Détermine la phase actuelle (incluant repos)
+          const currentPhase = isRestingRound
+            ? 'roundRest'
+            : phaseSequence[currentPhaseIndex];
+
+          // Gère la parole pour la phase de préparation
+          if (currentPhase === 'prep') {
+            if (timeLeft > 0) {
+              speak(timeLeft.toString());
+            } else if (timeLeft === 0) {
+              speak("C'est parti !");
+            }
+          }
+          // REQ 2 (MODIFIÉ): Avertissement "Attention" pour renfo/cardio
+          else if (currentPhase === 'strength' || currentPhase === 'cardio') {
+            if (timeLeft === 3) {
+              speak('Attention au changement');
+            }
+          }
+          // REQ 2 (CONSERVÉ): Décompte pour le repos de tour
+          else if (currentPhase === 'roundRest') {
+            if (timeLeft === 3 || timeLeft === 2 || timeLeft === 1) {
+              speak(timeLeft.toString());
+            }
+          }
+        }
+      }
+
+      function startNextPhase() {
+        if (!isRunning) return;
+        isRestingRound = false;
+
+        const phaseName = phaseSequence[currentPhaseIndex];
+
+        if (phaseName === 'strength') timeLeft = settings.strength;
+        else if (phaseName === 'cardio') timeLeft = settings.cardio;
+        else if (phaseName === 'prep') timeLeft = settings.prep;
+
+        updateTimerDisplay();
+
+        if (phaseName === 'prep' && timeLeft > 0) {
+          speak(timeLeft.toString());
+        }
+
+        startTimer();
+      }
+
+      function startRoundRest() {
+        if (!isRunning) return;
+        isRestingRound = true;
+        timeLeft = settings.roundRest;
+        updateTimerDisplay();
+        speak('Repos de tour');
+        startTimer();
+      }
+
+      // --- MODIFIÉ: Logique d'avancement ---
+      function advanceToNextPhase() {
+        // Cas 1: On vient de finir un repos de tour
+        if (isRestingRound) {
+          isRestingRound = false;
+          currentPhaseIndex = 0; // S'assurer de repartir à 'strength'
+          startNextPhase();
+          return;
+        }
+
+        // Cas 2: On vient de finir une phase normale
+        const justFinishedPhaseName = phaseSequence[currentPhaseIndex];
+
+        // REQ: Fin du STRENGTH (dernier exo) du DERNIER set du DERNIER tour
+        if (
+          justFinishedPhaseName === 'strength' &&
+          currentSet === settings.sets &&
+          currentRound === settings.rounds
+        ) {
+          finishWorkout(); // Termine SANS la dernière prépa
+          return;
+        }
+
+        // REQ 1 (NOUVEAU): Fin du STRENGTH (dernier exo) du DERNIER set (mais pas dernier tour)
+        // On gère ça ICI, avant d'incrémenter currentPhaseIndex
+        if (
+          justFinishedPhaseName === 'strength' &&
+          currentSet === settings.sets
+        ) {
+          // C'est la fin d'un tour. On saute la 'prep'
+          currentSet = 1;
+          currentRound++;
+          currentPhaseIndex = 0; // Prêt pour 'strength'
+
+          if (settings.roundRest > 0) {
+            startRoundRest(); // Lance le repos
+            return;
+          }
+          // S'il n'y a pas de repos, on enchaîne direct
+          startNextPhase();
+          return;
+        }
+
+        // Progression normale (ni fin de tour, ni fin de workout)
+        currentPhaseIndex++;
+
+        if (currentPhaseIndex >= phaseSequence.length) {
+          // Fin d'une série (après la 2e 'prep')
+          currentPhaseIndex = 0;
+          currentSet++;
+        }
+
+        startNextPhase(); // Prochaine phase normale
+      }
+
+      function finishWorkout() {
+        speak('Entraînement terminé. Bravo !');
+
+        // Arrêter le minuteur
+        clearInterval(timerInterval);
+        isRunning = false;
+        isPaused = false;
+        isRestingRound = false;
+
+        // Calculer les stats
+        const totalSets = settings.sets * settings.rounds;
+        const totalStrength = settings.strength * totalSets;
+        const totalCardio = settings.cardio * totalSets;
+
+        // 2 preps par set (S-P-C-P), moins 1 prep par tour (car on saute la dernière)
+        const totalPrep = settings.prep * (totalSets * 2 - settings.rounds);
+
+        // 1 repos par tour, SAUF le dernier
+        const totalRoundRests = settings.roundRest * (settings.rounds - 1);
+
+        const totalWork = totalStrength + totalCardio;
+        const totalRest = totalPrep + totalRoundRests;
+        const totalTime = totalWork + totalRest;
+
+        // Afficher les stats
+        document.getElementById('summary-total-time').textContent =
+          formatTime(totalTime);
+        document.getElementById('summary-total-work').textContent =
+          formatTime(totalWork);
+        document.getElementById('summary-total-rest').textContent =
+          formatTime(totalRest);
+        document.getElementById('summary-total-strength').textContent =
+          formatTime(totalStrength);
+        document.getElementById('summary-total-cardio').textContent =
+          formatTime(totalCardio);
+        document.getElementById('summary-total-prep').textContent =
+          formatTime(totalPrep);
+        document.getElementById('summary-total-round-rest').textContent =
+          formatTime(totalRoundRests);
+
+        // Gérer l'UI
+        timerContainer.classList.add('hidden');
+        summaryContainer.classList.remove('hidden');
+        pauseButton.classList.add('hidden');
+        resetButton.classList.add('hidden');
+      }
+
+      // --- Fonctions utilitaires ---
+
+      // NOUVEAU: Afficher l'écran des réglages
+      function showSettingsScreen() {
+        settingsContainer.classList.remove('hidden');
+        timerContainer.classList.add('hidden');
+        summaryContainer.classList.add('hidden');
+
+        startButton.classList.remove('hidden');
+        pauseButton.classList.add('hidden');
+        resetButton.classList.add('hidden');
+      }
+
+      // NOUVEAU: Sauvegarder les réglages
+      function saveSettings() {
+        const currentSettings = {
+          strength: strengthInput.value,
+          cardio: cardioInput.value,
+          prep: prepInput.value,
+          sets: setsInput.value,
+          rounds: roundsInput.value,
+          roundRest: roundRestInput.value,
+        };
+        sessionStorage.setItem(
+          'workoutSettings',
+          JSON.stringify(currentSettings)
+        );
+      }
+
+      // NOUVEAU: Charger les réglages
+      function loadSettings() {
+        const savedSettings = sessionStorage.getItem('workoutSettings');
+        if (savedSettings) {
+          const settings = JSON.parse(savedSettings);
+          strengthInput.value = settings.strength || 60;
+          cardioInput.value = settings.cardio || 30;
+          prepInput.value = settings.prep || 3;
+          setsInput.value = settings.sets || 4;
+          roundsInput.value = settings.rounds || 2;
+          roundRestInput.value = settings.roundRest || 45;
+        }
+      }
+
+      function updateTimerDisplay() {
+        let phaseName, phaseDisplayName;
+
+        if (isRestingRound) {
+          phaseName = 'roundRest';
+          phaseDisplayName = phaseNames.roundRest;
+        } else {
+          phaseName = phaseSequence[currentPhaseIndex];
+          phaseDisplayName = phaseNames[phaseName];
+        }
+
+        phaseNameDisplay.textContent = phaseDisplayName;
+        progressInfo.textContent = `Série: ${currentSet} / ${settings.sets} | Tour: ${currentRound} / ${settings.rounds}`;
+
+        if (phaseName === 'prep') {
+          timerDisplay.textContent = timeLeft === 0 ? 'Go!' : timeLeft;
+          timerDisplay.classList.add('text-red-500');
+        } else {
+          timerDisplay.textContent = formatTime(timeLeft);
+          timerDisplay.classList.remove('text-red-500');
+        }
+      }
+
+      function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+      }
+
+      // --- Écouteurs d'événements ---
+      startButton.addEventListener('click', startWorkout);
+      pauseButton.addEventListener('click', togglePause);
+      resetButton.addEventListener('click', resetWorkout);
+      returnButton.addEventListener('click', resetWorkout); // RE-Nouveau: Bouton de retour
+
+      // NOUVEAU: Sauvegarde auto des réglages
+      allSettingsInputs.forEach((input) => {
+        input.addEventListener('input', saveSettings);
+      });
+
+      // NOUVEAU: Chargement initial
+      loadSettings();
+    </script>
+  </body>
+</html>

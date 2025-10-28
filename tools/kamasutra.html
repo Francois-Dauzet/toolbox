@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kamasutra Aléatoire (avec IA)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Montserrat:ital,wght@0,400;1,700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <style>
+      body {
+        font-family: 'Montserrat', sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .timer-display {
+        font-family: 'Inter', sans-serif;
+      }
+      .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #a855f7;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      /* Style pour la checkbox */
+      #hide-completed-checkbox {
+        accent-color: #a855f7;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4"
+  >
+    <div
+      class="w-full max-w-md mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 space-y-6"
+    >
+      <!-- Bouton Retour à l'accueil -->
+      <a
+        href="/"
+        class="absolute top-6 left-6 text-gray-500 hover:text-white transition-colors"
+        title="Retour à l'accueil"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-7 w-7"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M11 17l-5-5m0 0l5-5m-5 5h12"
+          />
+        </svg>
+      </a>
+      <h1 class="text-3xl font-bold text-center text-purple-400">
+        Défi Kamasutra
+      </h1>
+
+      <!-- Carte de la position -->
+      <div
+        id="position-card"
+        class="bg-gray-900 rounded-lg overflow-hidden transition-all duration-500"
+      >
+        <div
+          id="image-container"
+          class="w-full h-56 bg-gray-900 flex items-center justify-center"
+        >
+          <div id="loader" class="loader hidden"></div>
+          <img
+            id="position-image"
+            src="https://placehold.co/600x400/111827/ffffff?text=Préparez-vous..."
+            alt="Image de la position"
+            class="w-full h-full object-cover hidden"
+          />
+        </div>
+        <div class="p-4 text-center">
+          <h2
+            id="position-name"
+            class="text-2xl font-bold text-purple-300 inline-block align-middle"
+          >
+            En attente...
+          </h2>
+          <svg
+            id="checkmark-icon"
+            class="h-7 w-7 text-green-400 inline-block ml-2 hidden align-middle"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <!-- Options et Compteur -->
+      <div class="flex items-center justify-between text-sm text-gray-300 px-1">
+        <div class="flex items-center">
+          <input
+            type="checkbox"
+            id="hide-completed-checkbox"
+            class="h-4 w-4 rounded mr-2 cursor-pointer"
+          />
+          <label for="hide-completed-checkbox" class="cursor-pointer"
+            >Cacher les positions faites</label
+          >
+        </div>
+        <span id="progress-counter" class="font-medium text-purple-300"></span>
+      </div>
+
+      <!-- Section du chronomètre -->
+      <div class="space-y-4">
+        <div class="text-center">
+          <div
+            id="timer-display"
+            class="timer-display text-6xl font-bold text-white"
+          >
+            00:00
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          id="start-button"
+          class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Démarrer
+        </button>
+        <div class="relative">
+          <button
+            id="new-position-button"
+            class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+          >
+            Nouvelle Position
+          </button>
+          <button
+            id="cancel-button"
+            class="w-full hidden bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+
+      <!-- Bouton de réinitialisation -->
+      <div class="pt-4 text-center">
+        <button
+          id="reset-button"
+          class="text-sm text-gray-500 hover:text-red-400 transition-colors"
+        >
+          Réinitialiser le progrès
+        </button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const positions = [
+          {
+            name: "A l'espagnole",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/5P826dxQiwAJEMF2bainXREuMpY=/630x497/smart/ef4899b3d3824e369598763d00fd08c7/ccmcms-jdf/10217268-a-l-espagnole.jpg',
+          },
+          {
+            name: 'La contemplation',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/ns-58HcD5Bil1xsOC5tMQWl9ZSM=/630x497/smart/6c9c9bb5719c49ddbdcf1a027335ad71/ccmcms-jdf/10217279-la-contemplation.jpg',
+          },
+          {
+            name: 'Connexion extrême',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/bOcFxV9294LccoNmI6CWxR2auGI=/630x497/smart/08129e84ebfd4df1a70cf1786234ab1d/ccmcms-jdf/10217270-connexion-extreme.jpg',
+          },
+          {
+            name: 'Bras dessus, bras dessous',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/Q_HOKdzPCxlfJ2hIGeSaP4PvLtI=/630x497/smart/63903c1e8a0b429bb93769eea27086a7/ccmcms-jdf/10217269-bras-dessus-bras-dessous.jpg',
+          },
+          {
+            name: 'La chaise à porteur',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/wJoGpB4owBhccvA-dO_8yShTVYk=/630x497/smart/c66897cee34c4a678131361b9986c710/ccmcms-jdf/10217275-la-chaise-a-porteur.jpg',
+          },
+          {
+            name: 'La chaise longue',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/QkQFz1PyTiv8QKg57BXtMGRAsSQ=/630x497/smart/c4b77b4b985d44e2856512a897ad7e16/ccmcms-jdf/10217276-la-chaise-longue.jpg',
+          },
+          {
+            name: "L'abandon lascif",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/ZIspiIiI2il-avZ6q8s5qvaxS_4=/630x497/smart/181c6d941ab94558a7ec03f7cfc938e0/ccmcms-jdf/10217272-l-abandon-lascif.jpg',
+          },
+          {
+            name: 'La bicyclette impudique',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/RbeiUA1mmIskNJP8APfs_ByS-LA=/630x497/smart/d2273eccd2254cd6be4069e7b49bafec/ccmcms-jdf/10217273-la-bicyclette-impudique.jpg',
+          },
+          {
+            name: 'De mi-côté',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/7UOqEj_1BBxCePXE1vlQjwzcE4g=/630x497/smart/9868688c67694a149e52fbc2ac8e1c3d/ccmcms-jdf/10217271-de-mi-cote.jpg',
+          },
+          {
+            name: 'La médiatrice',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/QmFUKOIQZToXxQ2VF5dMYMsKUVY=/630x497/smart/1f5a8d7712924512bc33a509007c8e65/ccmcms-jdf/10217280-la-mediatrice.jpg',
+          },
+          {
+            name: 'La chaise pour deux',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/w0-WpjNkDKB1Z-yzsEq3DMD_7SY=/630x497/smart/1ba15ffe5e8848269231c284ab4d7f66/ccmcms-jdf/10217277-la-chaise-pour-deux.jpg',
+          },
+          {
+            name: 'La chevauchée fantastique',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/xVhhjrfTUKUCL1-z3M4aTdZWbr4=/630x497/smart/c7089bee46ef47e8b8deb6b291dbe22f/ccmcms-jdf/10217278-la-chevauchee-fantastique.jpg',
+          },
+          {
+            name: "L'Andromaque",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/Y-g5Tz7ej9kI2CV7wHIFmlg6gLc=/630x497/smart/d49ca00cfdcf4d8794dd1fa6b2e9506d/ccmcms-jdf/10217282-landromaque.jpg',
+          },
+          {
+            name: 'La roulade arrière',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/wk-ZphEuFzq4VM52G56B5apooKo=/630x497/smart/4e061b1e13ce4acb80e59469942aa885/ccmcms-jdf/10217285-la-roulade-arriere.jpg',
+          },
+          {
+            name: 'La planche de surf',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/RTOqnM-t156GYQnxXJvvu__5c1Q=/630x497/smart/64ad965b5af146de9355492a0912c695/ccmcms-jdf/10217283-la-planche-de-surf.jpg',
+          },
+          {
+            name: 'La mise en hauteur',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/5IvocxXoTHuHUXoDGtd1b3BYhPA=/630x497/smart/176bd2ac8c5144adbf47d993061a7b4d/ccmcms-jdf/10217281-la-mise-en-hauteur.jpg',
+          },
+          {
+            name: 'La table de réunion',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/JKt_rn78s_4pOAmnYHPdbHBq2EI=/630x497/smart/4656a193a9714677be6b184bd93252fe/ccmcms-jdf/10217289-la-table-de-reunion.jpg',
+          },
+          {
+            name: 'La serrure',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/CZuRtTBi-c-CW9PhAp2uNZZcQxo=/630x497/smart/dec89602e7c74c50921ea345aec6c216/ccmcms-jdf/10217286-la-serrure.jpg',
+          },
+          {
+            name: "L'arc tendu",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/KpB76x5-VoowV6P31IxGcpGWDC8=/630x497/smart/9cf25d509df74902b4fbf4b64cd7cf6a/ccmcms-jdf/10217284-l-arc-tendu.jpg',
+          },
+          {
+            name: 'La symétrie centrale',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/qOHGiKAAqs6k_zzq2hcq13kWRFU=/630x497/smart/a01c70e9ded047ad9ebafe0d174def33/ccmcms-jdf/10217288-la-symetrie-centrale.jpg',
+          },
+          {
+            name: 'La tête-bêche',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/4UyrJz4divvw7Blm19YxmVgZP7g=/630x497/smart/d299bdc75b4a4be29fcda280eb0cdcce/ccmcms-jdf/10217290-la-tete-beche.jpg',
+          },
+          {
+            name: 'La vague sensuelle',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/rWpsUxDL_ZQjjQIQgBlZncT8P_c=/630x497/smart/738f3fee617a4f13af446c5e0673130a/ccmcms-jdf/10217291-la-vague-sensuelle.jpg',
+          },
+          {
+            name: 'La cavalière',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/GceH2AOJmkqDoYE6yOiaRgyPq0U=/630x497/smart/b25385e26e0e48b8b4a6c400cef9f48d/ccmcms-jdf/10217274-la-cavaliere.jpg',
+          },
+          {
+            name: "L'écolo dévergondé",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/IqLPqgTKe0MSQSgNzgNw1XFzoAM=/630x497/smart/1d6eb8a4f22b472f92b60b6e9037e722/ccmcms-jdf/10217293-l-ecolo-devergonde.jpg',
+          },
+          {
+            name: "L'écuyère de cirque",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/IPoPOqVz5sJ9CQF18XGZZMwkkSY=/630x497/smart/703b46c5e08745228da580cb7faaf2e9/ccmcms-jdf/10217294-l-ecuyere-de-cirque.jpg',
+          },
+          {
+            name: 'Le fauteuil à bascule',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/PVfzp307R8Uf95Y0tiGQrt4NftI=/630x497/smart/e42f16ec5b2a48919281c895d40042a9/ccmcms-jdf/10217295-le-fauteuil-a-bascule.jpg',
+          },
+          {
+            name: 'Le maître à genoux',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/TSqs8qcL94nbHiKkpmoOAihWWs4=/630x497/smart/084616c9cc5a4b16b0cc69fde6f4abb2/ccmcms-jdf/10217297-le-maitre-a-genoux.jpg',
+          },
+          {
+            name: 'Le gymnaste',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/Gr5qYHxtPplEk-azEEvzWyUF3AE=/630x497/smart/f60f445dcc5c4e2fb5ba444f10540270/ccmcms-jdf/10217296-le-gymnaste.jpg',
+          },
+          {
+            name: "L'embrasement",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/UnWOknkx5yw-x38_bI1uQeh-y-g=/630x497/smart/a5b61bf53131440385e8279c9864c3ab/ccmcms-jdf/10217298-l-embrasement.jpg',
+          },
+          {
+            name: 'Le plaisir à mi-chemin',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/RXD5rAigt-MqkjYMUPOvGyTUUO8=/630x497/smart/97f5dffad1594292abbaf47172ffacfc/ccmcms-jdf/10217299-le-plaisir-a-mi-chemin.jpg',
+          },
+          {
+            name: 'Le quart de tour',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/_uEVq1qJZpi3a5tyyC1qe7Ulc60=/630x497/smart/b8eb6312333f4ac3a6f61e0e342dfb14/ccmcms-jdf/10217303-le-quart-de-tour.jpg',
+          },
+          {
+            name: 'Le soc de la charrue',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/hNY4BnHa3G8TCMVJsZhAd5GG3_4=/630x497/smart/bd158d07dd0748a4be86d0cd8d5fbf24/ccmcms-jdf/10217307-le-soc-de-la-charrue.jpg',
+          },
+          {
+            name: 'Le plongeoir',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/5w6GLV_jcsK8XvcO8Cu6lzXzvWo=/630x497/smart/350dd67ce8864ba696df401c7ccf4d98/ccmcms-jdf/10217300-le-plongeoir.jpg',
+          },
+          {
+            name: 'Le porté',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/Tu_2-YaB0s2mp2Lik_izbSsjP2c=/630x497/smart/dc0e7516b2a6406f8ec04cf7f6090e38/ccmcms-jdf/10217302-le-porte.jpg',
+          },
+          {
+            name: 'Le poirier',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/ZaayqJ7mBvcIAFLUARmgPzkiwBQ=/630x497/smart/b1f0d752de1b426d9c1d9179ee29aa23/ccmcms-jdf/10217301-le-poirier.jpg',
+          },
+          {
+            name: 'Les ciseaux imbriqués',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/eWuw7Sj_kEsYpzJghtyv8y1Gf6M=/630x497/smart/8e53075e8c2d49739caf8c885cc06795/ccmcms-jdf/10217306-les-ciseaux-imbriques.jpg',
+          },
+          {
+            name: 'Les bâtons de ski',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/lt9rCZjrpVATbYEib7L70aKE2JY=/630x497/smart/7a6fddf1dc2648bb8f97251a64ad2fd1/ccmcms-jdf/10217305-les-batons-de-ski.jpg',
+          },
+          {
+            name: "L'équilibre précaire",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/dCR92DkuTVjQpQn7LPuHI383lKg=/630x497/smart/c3ef910c549f4701a39e94fd8ba55da5/ccmcms-jdf/10217304-l-equilibre-precaire.jpg',
+          },
+          {
+            name: 'Position latérale de sexualité',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/yswpHbRa2zgSWhm6VgXZ2ZdvHgw=/630x497/smart/b97e52c65e91493d86f4e46e3cc42597/ccmcms-jdf/10217317-position-laterale-de-sexualite.jpg',
+          },
+          {
+            name: 'Les sept voiles',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/-r-p8qo19sHm_Fhr4joUuwtDFXU=/630x497/smart/1b3641d7f8c14d57ac47e04301e6a9f4/ccmcms-jdf/10217308-les-sept-voiles.jpg',
+          },
+          {
+            name: "L'interstice",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/3OCNNZtnQm_3rNmhk3x-kf4ciYA=/630x497/smart/f36d9b36ec4643d68f81cf389c91e537/ccmcms-jdf/10217313-l-interstice.jpg',
+          },
+          {
+            name: 'Le train dans la vallée',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/I8w8zC5fpgeAIhEw5_UjX7qrZ0o=/630x497/smart/1bf5a3f7c9224a3c9c0ea3e99272ffae/ccmcms-jdf/10217309-le-train-dans-la-vallee.jpg',
+          },
+          {
+            name: 'Le W',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/k4poBiPaUckMm_LdZ9eLUIkhHSg=/630x497/smart/805ba4cb06f4418c9151a476b2351a22/ccmcms-jdf/10217311-le-w.jpg',
+          },
+          {
+            name: 'Le viaduc',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/Uc08nzpsww-zytlycp3UOM_w6g8=/630x497/smart/f85852f4a7f2472183ccaa1384192b44/ccmcms-jdf/10217310-le-viaduc.jpg',
+          },
+          {
+            name: 'Masturbation mutuelle',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/0Q_vt4OmEtjuwHUBn67QdL9y_fo=/630x497/smart/31b782aa9800415285d38e1d48ba4423/ccmcms-jdf/10217315-masturbation-mutuelle.jpg',
+          },
+          {
+            name: "L'indolent",
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/W5DUI2ZyHYJugGzvrl3Wf9Cy9Nw=/630x497/smart/0fccaf6003bb49e3b5f5a7e49e904cfb/ccmcms-jdf/10217312-l-indolent.jpg',
+          },
+          {
+            name: 'Sens dessus dessous',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/BOSkWjjXTkstBoMaPed9p1ppO5o=/630x497/smart/cce3f658997d4b17b07c45f48017bd5d/ccmcms-jdf/10217318-sans-dessus-dessous.jpg',
+          },
+          {
+            name: 'Le centaure',
+            imageUrl:
+              'https://img-3.journaldesfemmes.fr/5jMwbPvtBvNSQ5qjOa5XKBBpsFc=/630x496/smart/267196cb719d49aa89f06edeb7e6769b/ccmcms-jdf/10217292-le-centaure.jpg',
+          },
+        ];
+
+        const positionImage = document.getElementById('position-image');
+        const positionName = document.getElementById('position-name');
+        const timerDisplay = document.getElementById('timer-display');
+        const startButton = document.getElementById('start-button');
+        const newPositionButton = document.getElementById(
+          'new-position-button'
+        );
+        const cancelButton = document.getElementById('cancel-button');
+        const loader = document.getElementById('loader');
+        const checkmarkIcon = document.getElementById('checkmark-icon');
+        const resetButton = document.getElementById('reset-button');
+        const hideCompletedCheckbox = document.getElementById(
+          'hide-completed-checkbox'
+        );
+        const progressCounter = document.getElementById('progress-counter');
+
+        let currentPositionIndex = -1;
+        let timerInterval = null;
+        let timeLeft = 0;
+        let initialTimeForPosition = 0;
+        let isTimerRunning = false;
+        let isGeneratingImage = false;
+        let completedPositions = [];
+
+        positions.forEach((pos) => {
+          pos.id = pos.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        });
+
+        const updateProgressCounter = () => {
+          const remaining = positions.length - completedPositions.length;
+          progressCounter.textContent = `${remaining} / ${positions.length} à découvrir`;
+        };
+
+        const loadProgress = () => {
+          const savedProgress = localStorage.getItem('kamasutraProgress');
+          if (savedProgress) {
+            completedPositions = JSON.parse(savedProgress);
+          }
+          const hidePref = localStorage.getItem('kamasutraHidePref') === 'true';
+          hideCompletedCheckbox.checked = hidePref;
+          updateProgressCounter();
+        };
+
+        const saveProgress = () => {
+          localStorage.setItem(
+            'kamasutraProgress',
+            JSON.stringify(completedPositions)
+          );
+          updateProgressCounter();
+        };
+
+        const formatTime = (seconds) => {
+          const minutes = Math.floor(seconds / 60);
+          const remainingSeconds = seconds % 60;
+          return `${String(minutes).padStart(2, '0')}:${String(
+            remainingSeconds
+          ).padStart(2, '0')}`;
+        };
+
+        const displayNewPosition = async () => {
+          if (isGeneratingImage) return;
+
+          let availablePositions = positions;
+          if (hideCompletedCheckbox.checked) {
+            availablePositions = positions.filter(
+              (p) => !completedPositions.includes(p.id)
+            );
+          }
+
+          if (availablePositions.length === 0) {
+            positionName.textContent = 'Félicitations !';
+            positionImage.src = `https://placehold.co/600x400/a855f7/ffffff?text=Tout+est+terminé+!`;
+            timerDisplay.textContent = '🎉';
+            startButton.disabled = true;
+            return;
+          }
+
+          isGeneratingImage = true;
+          newPositionButton.disabled = true;
+          startButton.disabled = true;
+          loader.classList.remove('hidden');
+          positionImage.classList.add('hidden');
+          checkmarkIcon.classList.add('hidden');
+
+          let newPosition;
+          do {
+            newPosition =
+              availablePositions[
+                Math.floor(Math.random() * availablePositions.length)
+              ];
+          } while (
+            availablePositions.length > 1 &&
+            newPosition.id ===
+              (positions[currentPositionIndex] &&
+                positions[currentPositionIndex].id)
+          );
+
+          currentPositionIndex = positions.findIndex(
+            (p) => p.id === newPosition.id
+          );
+
+          positionName.textContent = newPosition.name;
+
+          if (completedPositions.includes(newPosition.id)) {
+            checkmarkIcon.classList.remove('hidden');
+          }
+
+          const randomDuration =
+            Math.floor(Math.random() * (300 - 30 + 1)) + 30;
+          initialTimeForPosition = randomDuration;
+          timeLeft = initialTimeForPosition;
+          timerDisplay.textContent = formatTime(timeLeft);
+
+          positionImage.src = newPosition.imageUrl;
+          positionImage.alt = `Image de la position : ${newPosition.name}`;
+
+          setTimeout(() => {
+            loader.classList.add('hidden');
+            positionImage.classList.remove('hidden');
+            isGeneratingImage = false;
+            newPositionButton.disabled = false;
+            startButton.disabled = false;
+          }, 200);
+        };
+
+        const stopTimer = (isCancelled = false) => {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          isTimerRunning = false;
+          startButton.disabled = false;
+          startButton.textContent = 'Démarrer';
+
+          cancelButton.classList.add('hidden');
+          newPositionButton.classList.remove('hidden');
+
+          if (isCancelled) {
+            timeLeft = initialTimeForPosition;
+            timerDisplay.textContent = formatTime(timeLeft);
+          } else {
+            timerDisplay.textContent = 'FINI !';
+            const completedId = positions[currentPositionIndex].id;
+            if (!completedPositions.includes(completedId)) {
+              completedPositions.push(completedId);
+              saveProgress();
+              checkmarkIcon.classList.remove('hidden');
+            }
+            const synth = new Tone.Synth().toDestination();
+            synth.triggerAttackRelease('C5', '8n', Tone.now());
+            synth.triggerAttackRelease('G5', '8n', Tone.now() + 0.2);
+          }
+        };
+
+        const handleNewPosition = () => {
+          if (isTimerRunning) stopTimer(true);
+          displayNewPosition();
+        };
+
+        const handleStartTimer = () => {
+          if (isTimerRunning || isGeneratingImage) return;
+          Tone.start();
+          isTimerRunning = true;
+          startButton.disabled = true;
+          startButton.textContent = 'En cours...';
+
+          newPositionButton.classList.add('hidden');
+          cancelButton.classList.remove('hidden');
+
+          timerInterval = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = formatTime(timeLeft);
+            if (timeLeft <= 0) {
+              stopTimer(false);
+            }
+          }, 1000);
+        };
+
+        const handleCancel = () => {
+          stopTimer(true);
+        };
+
+        const handleReset = () => {
+          localStorage.removeItem('kamasutraProgress');
+          completedPositions = [];
+          checkmarkIcon.classList.add('hidden');
+          updateProgressCounter();
+        };
+
+        const handleCheckboxChange = () => {
+          localStorage.setItem(
+            'kamasutraHidePref',
+            hideCompletedCheckbox.checked
+          );
+        };
+
+        loadProgress();
+        newPositionButton.addEventListener('click', handleNewPosition);
+        startButton.addEventListener('click', handleStartTimer);
+        cancelButton.addEventListener('click', handleCancel);
+        resetButton.addEventListener('click', handleReset);
+        hideCompletedCheckbox.addEventListener('change', handleCheckboxChange);
+        displayNewPosition();
+      });
+    </script>
+  </body>
+</html>
